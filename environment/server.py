@@ -7,18 +7,22 @@ class Server():
                  id :int, 
                  private_queue_computational_capacity :float,
                  public_queues_computational_capacity :float,
-                 connection_row :np.array,):
+                 outbound_connections,
+                 inbound_connections):
         self.id=id
         self.private_queue_computational_capacity = private_queue_computational_capacity
         self.public_queues_computational_capacity = public_queues_computational_capacity
-        self.connection_row = connection_row
        
-        self.supporting_servers =  np.where(connection_row!=0)[0]
         
         self.processing_queue = ProcessingQueue(self.private_queue_computational_capacity)
         
-        self.offloading_queue = OffloadingQueue(offloading_capacities = self.connection_row)
+        outbound_connections = np.array(outbound_connections)
+        self.offloading_servers = np.where(outbound_connections!=0)[0]
+        self.offloading_capacities = {s:outbound_connections[s] for s in self.offloading_servers}
+        self.offloading_queue = OffloadingQueue(offloading_capacities = self.offloading_capacities)
 
+        inbound_connections = np.array(inbound_connections)
+        self.supporting_servers =  np.where(inbound_connections!=0)[0]
         self.public_queue_manager = PublicQueueManager(id=self.id,
                                                        computational_capacity=  self.public_queues_computational_capacity,
                                                        supporting_servers= self.supporting_servers)
@@ -49,5 +53,21 @@ class Server():
         local_reward = self.processing_queue.step()
         transmited_task,offloaded_reward  = self.offloading_queue.step()
         foreign_rewards =  self.public_queue_manager.step()
-        total_rewards= local_reward + offloaded_reward + foreign_rewards
+        total_rewards=  foreign_rewards
+        total_rewards[self.id] = local_reward + offloaded_reward
         return transmited_task,total_rewards
+    
+    def get_features(self):
+        private_waiting_time,public_waiting_time = self.get_waiting_times()
+        public_queues = self.public_queue_manager.get_queue_lengths()
+        return np.array([private_waiting_time,
+                         public_waiting_time]),public_queues
+    
+    def get_number_of_features(self):
+        features,_  = self.get_features()
+        return len(features)
+    def get_number_of_actions(self):
+        return 1+len(self.offloading_servers)
+    
+    def get_offliading_servers(self):
+        return self.offloading_servers

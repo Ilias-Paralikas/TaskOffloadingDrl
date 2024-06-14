@@ -1,3 +1,4 @@
+import numpy as np
 class Task():
     def __init__(self,
                  size :float =None,
@@ -26,13 +27,13 @@ class Task():
             
     def drop_task(self) -> int:
         self.empty = True
-        return {self.origin_server_id :self.drop_penalty}
+        return self.drop_penalty
     
     
     def finish_task(self,
                     finish_time:int) ->int:
         self.empty = True
-        return {self.origin_server_id :finish_time- self.arrival_time}
+        return finish_time- self.arrival_time
     
     def is_empty(self) ->bool:
         return self.empty
@@ -42,14 +43,14 @@ class Task():
         self.remain -= capacity /self.computational_density
         if self.remain <=0:
             return self.finish_task(time)
-        return []
+        return 0
 
     def public_process(self,capacity,time):
         computational_capacity =  capacity  * self.priotiry
         task_processed = computational_capacity / self.computational_density
         self.remain -= task_processed
         if self.remain <=0:
-            task_processed -= self.remain
+            task_processed += self.remain
             return self.finish_task(time), task_processed
         return 0,task_processed
 
@@ -112,3 +113,13 @@ class Task():
                     drop_penalty = self.drop_penalty ,
                     origin_server_id= self.origin_server_id,
                     target_server_id = self.target_server_id)
+        
+    def get_features(self):
+        return np.array([self.size,
+                self.timeout_delay,
+                self.priotiry,
+                self.computational_density,
+                self.drop_penalty])
+    def get_number_of_features(self):
+        features =  self.get_features()
+        return len(features)

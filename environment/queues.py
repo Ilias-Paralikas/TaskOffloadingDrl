@@ -1,7 +1,7 @@
 from .task import Task
+from utils import merge_dicts
 import queue
 import math
-import numpy as np
 class TaskQueue():
     def __init__(self)->None:
         self.reset()
@@ -14,7 +14,7 @@ class TaskQueue():
     
     def add_task(self,
                  task:Task)->None:
-        if self.current_task.is_empty():
+        if self.is_empty():
             self.current_task = task.copy()
         else:
             self.queue.put(task.copy())
@@ -28,7 +28,7 @@ class TaskQueue():
 
     def get_first_non_empty_element(self) ->int:
         self.current_time +=1
-        rewards =  []
+        rewards =  0
         if self.current_task.is_empty():
             if self.queue.empty():
                 return rewards
@@ -36,7 +36,7 @@ class TaskQueue():
                 self.current_task = self.queue.get()
         while self.current_task_is_timed_out():
             self.queue_length -= self.current_task.get_remaining_size()
-            rewards.append(self.current_task.drop_task())
+            rewards += self.current_task.drop_task()
             if self.queue.empty():
                 return rewards
             else:
@@ -45,10 +45,11 @@ class TaskQueue():
     
     def get_waiting_time(self):
         try:
-            return self.waiting_time()
+            return self.waiting_time
         except:
             raise NotImplementedError("Waiting time is not implemented for this queue (Probably public queue)")
-
+    def get_queue_length(self):
+        return self.queue_length
 
 class ProcessingQueue(TaskQueue):
     def __init__(self,computational_capacity):
@@ -76,9 +77,7 @@ class ProcessingQueue(TaskQueue):
         rewards = self.get_first_non_empty_element()
         if self.current_task.is_empty():
             return rewards
-        precessed_reward = self.current_task.process(self.computational_capacity,self.current_time)
-        if precessed_reward:
-            rewards += [precessed_reward]
+        rewards += self.current_task.process(self.computational_capacity,self.current_time)
         return rewards
     
     
@@ -118,9 +117,8 @@ class OffloadingQueue(TaskQueue):
         return transmited_task,reward
     
 class PublicQueue(TaskQueue):
-    
     def step(self,computational_capacity):
-        reward = self.get_first_non_empty_element()
+        reward = 0
         if self.current_task.is_empty():
             return reward
         reward, task_processed = self.current_task.public_process(computational_capacity,self.current_time)
@@ -164,16 +162,25 @@ class PublicQueueManager():
             self.public_queues[origin_server_id].add_task(task)
     
     def step(self):
-        rewards =[]
+        drop_rewards ={}
+        for server_id in self.supporting_servers:
+            drop_rewards[server_id]= self.public_queues[server_id].get_first_non_empty_element()
+         
+        finished_rewards = {}
         active_queues,total_priority= self.get_active_queues()
         if active_queues!=0:
             distributed_computational_capacity = self.computational_capacity/total_priority
         else:
             distributed_computational_capacity = 0
         for server_id in self.supporting_servers:
-            reward = self.public_queues[server_id].step(distributed_computational_capacity)
-            if reward:
-                rewards += [reward]
+            finished_rewards[server_id]= self.public_queues[server_id].step(distributed_computational_capacity)
+         
+        rewards = merge_dicts(drop_rewards,finished_rewards)
         return rewards
     
     
+    def get_queue_lengths(self):
+        queue_lengths = {}
+        for server_id in self.supporting_servers:
+            queue_lengths[server_id] = self.public_queues[server_id].get_queue_length()
+        return queue_lengths

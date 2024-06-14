@@ -1,23 +1,7 @@
 from .task import Task
+from utils import Variabledistributor
 import numpy as np
-class Variabledistributor():
-    def __init__(self,min,max,distribution):
-        self.min = min
-        self.max = max
-        self.distribution_choices = {
-            "uniform":self.uniform,
-            "choice":self.choice,
-            'constant':lambda :self.min,
-        }
-        self.distribution = self.distribution_choices[distribution]
-        
-    def uniform(self):
-        return np.random.uniform(self.min,self.max)
-    def choice(self):
-        return np.random.choice(range(self.min,self.max+1))
-    
-    def generate(self):
-        return self.distribution()
+
 
 class TaskGenerator():
     def __init__(self,
@@ -55,16 +39,20 @@ class TaskGenerator():
         if self.current_time < self.episode_time:
             if np.random.rand() > self.task_arrive_probability:
                 return None
-            size = self.size_distributor.generate()
-            timeout_delay = self.timeout_distributor.generate()
-            priotiry = self.priotiry_distributor.generate()
-            computational_density = self.computational_density_distributor.generate()
-            drop_penalty = timeout_delay* self.drop_penalty_distributor.generate()
-            return Task(size=size,
-                        arrival_time=self.current_time,
-                        timeout_delay=timeout_delay,
-                        priotiry=priotiry,
-                        computational_density=computational_density,
-                        drop_penalty=drop_penalty)
+            return self.generate()
         return None
    
+    def generate(self):
+        size = self.size_distributor.generate()
+        timeout_delay = self.timeout_distributor.generate()
+        priotiry = self.priotiry_distributor.generate()
+        computational_density = self.computational_density_distributor.generate()
+        drop_penalty = timeout_delay* self.drop_penalty_distributor.generate()
+        return Task(size=size,
+                    arrival_time=self.current_time,
+                    timeout_delay=timeout_delay,
+                    priotiry=priotiry,
+                    computational_density=computational_density,
+                    drop_penalty=drop_penalty)
+    def get_number_of_features(self):
+       return self.generate().get_number_of_features()

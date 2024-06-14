@@ -1,0 +1,4 @@
+*.pyc
+__pycache__/
+hyperparameters/hyperparameters.json
+log_folder/
