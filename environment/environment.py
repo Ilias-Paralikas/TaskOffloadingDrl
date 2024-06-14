@@ -37,6 +37,7 @@ class Environment():
         self.episode_time_end = episode_time +max(timeout_delay_maxs)
         self.connection_matrix=  connection_matrix
         get_column = lambda m, i: [row[i] for row in m]
+        self.max_penantly = max(drop_penalty_maxs) *max(timeout_delay_maxs)
         self.task_generators = [TaskGenerator(id=i,
                                               episode_time=episode_time,
                                               task_arrive_probability=task_arrive_probabilities[i],
@@ -74,6 +75,7 @@ class Environment():
         self.number_of_server_features = self.servers[0].get_number_of_features()
         self.number_of_features = self.number_of_task_features + self.number_of_server_features
         
+        
     def reset(self):
         self.current_time = 0
         for task_generator in self.task_generators:
@@ -92,7 +94,8 @@ class Environment():
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
     
         self.tasks = [t.step() for t in self.task_generators]
-        
+    def scale_rewards(self,reward):
+        return reward/self.max_penantly
     def pack_observation(self):
         local_observations = np.zeros((self.number_of_servers,self.number_of_features))
         public_queues  = [np.array([]) for key in range(self.number_of_servers+self.number_of_clouds)]
@@ -143,9 +146,11 @@ class Environment():
                
         observations = self.pack_observation()
         rewards  = dict_to_array(rewards,self.number_of_servers)
+        rewards = self.scale_rewards(rewards)
         
         info  ={}
         info['rewards'] = rewards
+        
         return observations,rewards, done, info
         
         
