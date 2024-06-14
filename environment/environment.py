@@ -70,7 +70,7 @@ class Environment():
                            computational_capacity=cloud_computational_capacity)
         
         
-        self.number_of_task_features=  self.task_generators[0].step().get_number_of_features()
+        self.number_of_task_features=  self.task_generators[0].generate().get_number_of_features()
         self.number_of_server_features = self.servers[0].get_number_of_features()
         self.number_of_features = self.number_of_task_features + self.number_of_server_features
         
