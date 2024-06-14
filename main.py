@@ -7,7 +7,6 @@ import json
 import torch
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    np.random.seed(0)
     parser = argparse.ArgumentParser()
     parser.add_argument('--log_folder', type=str, default='log_folder', help='Path to the log folder')
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
