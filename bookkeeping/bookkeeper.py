@@ -110,8 +110,6 @@ class BookKeeper:
         if key not in self.metrics:
             print(f"No data found for key '{key}'")
             return
-        if key in self.not_plotable_metrics:
-            return 
         list_of_arrays = self.metrics[key]
         stacked_arrays = np.vstack(list_of_arrays)
 
@@ -135,8 +133,7 @@ class BookKeeper:
         if key not in self.metrics:
             print(f"No data found for key '{key}'")
             return
-        if key in self.not_plotable_metrics:
-            return 
+      
 
         list_of_arrays = self.metrics[key]
 
@@ -170,6 +167,5 @@ class BookKeeper:
         for key in self.metrics.keys():
             self.plot_and_save(key)
             self.plot_and_save_moving_avg(key)
-        self.plot_actions()
 
         
