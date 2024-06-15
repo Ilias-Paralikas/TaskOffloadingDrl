@@ -105,6 +105,8 @@ def main():
 
                     
         bookkeeper.store_episode(epsilon=agents[0].get_epsilon())   
+        
+    bookkeeper.plot_metrics()
                                 
                     
 if __name__ == "__main__":

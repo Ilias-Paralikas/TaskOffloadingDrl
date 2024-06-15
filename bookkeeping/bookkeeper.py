@@ -103,3 +103,72 @@ class BookKeeper:
         
         score, average_score = np.mean(self.metrics['rewards_history'][-1]), np.mean(self.metrics['rewards_history'][-self.average_window:])
         print(f'Epoch: {epochs} Score: {score:.3f} Average Score: {average_score:.3f} Epsilon: {epsilon:.3f}')
+        
+
+    def plot_and_save(self, key):
+        if key not in self.metrics:
+            print(f"No data found for key '{key}'")
+            return
+        if key in self.not_plotable_metrics:
+            return 
+        list_of_arrays = self.metrics[key]
+        stacked_arrays = np.vstack(list_of_arrays)
+
+        transposed_arrays = stacked_arrays.T
+        plt.figure(figsize=(10, 6))
+        for i, column in enumerate(transposed_arrays):
+            plt.plot(column, label=f'agent {i} {key} ', linestyle='--')
+        mean_values = np.mean(transposed_arrays, axis=0)
+        plt.plot(mean_values, label='Mean', color='red', linewidth=6)
+        plt.legend()
+        plt.title(f'Plot of {key} and Their Mean')
+
+        plt.savefig(f'{self.run_folder}/{key}.png')
+        plt.close()
+
+    def moving_average(self, a):
+        return  [np.mean(a[max(0,i-self.average_window):i]) for i in range(1,len(a))]
+
+        
+    def plot_and_save_moving_avg(self, key):
+        if key not in self.metrics:
+            print(f"No data found for key '{key}'")
+            return
+        if key in self.not_plotable_metrics:
+            return 
+
+        list_of_arrays = self.metrics[key]
+
+        stacked_arrays = np.vstack(list_of_arrays)
+
+        transposed_arrays = stacked_arrays.T
+
+        # Create a new figure
+        plt.figure(figsize=(10, 6))
+
+        # Plot the moving average of each column
+        means = []  # List to store the means of the moving averages
+        for i, column in enumerate(transposed_arrays):
+            moving_avg = self.moving_average(column)  # Change n to your desired window size
+            plt.plot(moving_avg, label=f'agent {i}', linestyle='--')
+            means.append(moving_avg)
+        means = np.mean(means, axis=0)
+        # Plot the mean of the moving averages
+        plt.plot(means, label='Mean', color='red',linewidth=6)
+
+        # Add a legend and title
+        plt.legend()
+        plt.title(f'Plot of Moving Average of {key}')
+
+        # Save the plot as a PNG file
+        plt.savefig(f'{self.run_folder}/{key}_moving_average.png')
+        plt.close()
+        
+        
+    def plot_metrics(self):
+        for key in self.metrics.keys():
+            self.plot_and_save(key)
+            self.plot_and_save_moving_avg(key)
+        self.plot_actions()
+
+        
