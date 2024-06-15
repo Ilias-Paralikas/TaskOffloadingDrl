@@ -156,6 +156,11 @@ class Agent(DescisionMakerBase):
         self.terminal_memory[index] = done
 
         self.memory_counter +=1
+        
+    def reset_lstm_history(self):
+        self.lstm_history = deque(maxlen=self.lstm_time_step)
+        for _ in range(self.lstm_time_step):
+            self.lstm_history.append(np.zeros([self.lstm_shape]))
     
     def choose_action(self,observation,lstm_state):
         
@@ -172,6 +177,8 @@ class Agent(DescisionMakerBase):
             else:
                 action = np.random.choice(self.number_of_actions)
         return action
+    
+    
     
     
     def load_model(self,checkpoint_folder=None):
@@ -210,7 +217,7 @@ class Agent(DescisionMakerBase):
             else:
                 sequence = torch.tensor(self.lstm_memory[start_index:end_index])
             return sequence
-        if self.epsilon == self.epsilon_end and not self.train_in_exploit_state: 
+        if self.epsilon == self.epsilon_end:
             return
         if self.memory_counter <= self.batch_size+self.lstm_time_step:
             return 

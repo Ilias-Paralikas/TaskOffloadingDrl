@@ -102,6 +102,8 @@ def main():
                     agents[i].learn()
                     
             local_observations,public_queues  = local_observations_,public_queues_
+        for agent in agents:
+            agent.reset_lstm_history()
 
                     
         bookkeeper.store_episode(epsilon=agents[0].get_epsilon())   
