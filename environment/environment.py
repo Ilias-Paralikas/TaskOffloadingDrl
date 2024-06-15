@@ -8,6 +8,7 @@ import numpy as np
 
 class Environment():
     def __init__(self, 
+                 static_frequency,
                  number_of_servers,
                  private_cpu_capacities,
                  public_cpu_capacities,
@@ -74,9 +75,14 @@ class Environment():
         self.number_of_task_features=  self.task_generators[0].generate().get_number_of_features()
         self.number_of_server_features = self.servers[0].get_number_of_features()
         self.number_of_features = self.number_of_task_features + self.number_of_server_features
-        
+        self.static_frequency = static_frequency
+        self.static_counter = 0
         
     def reset(self):
+        if self.static_frequency:
+            if self.static_counter % self.static_frequency ==0:
+                np.random.seed(0)
+                self.static_counter+=1
         self.current_time = 0
         for task_generator in self.task_generators:
             task_generator.reset()
@@ -117,6 +123,7 @@ class Environment():
             public_queues[q] = np.append(public_queues[q], cloud_public_queues[q])      
         return local_observations,public_queues
     def step(self,actions):
+
         assert len(actions) == self.number_of_servers
         if self.current_time >=self.episode_time_end:
             done = True

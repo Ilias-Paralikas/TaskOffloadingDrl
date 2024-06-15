@@ -25,7 +25,6 @@ def main():
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
         parser.add_argument('--number_of_servers', type=int, default=3, help='Number of servers in the system')
-        parser.add_argument('--epochs', type=int, default=1000, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
@@ -35,6 +34,8 @@ def main():
         
         parser.add_argument('--episode_time', type=int, default=100, help='Number of servers in the system')
         
+        
+        parser.add_argument('--static_frequency', type=int, default=0, help='Number of servers in the system')
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=20, help='Number of servers in the system')
         
@@ -106,7 +107,6 @@ def main():
         
         private_cpu_capacities = fill_array(args.private_cpu_capacities,args.number_of_servers,args.default_private_cpu_capacity,float)
         public_cpu_capacities = fill_array(args.public_cpu_capacities,args.number_of_servers,args.default_public_cpu_capacity,float)
-        episode_time  = args.episode_time
         cloud_computational_capacity = args.cloud_computational_capacity
         task_arrive_probabilities = fill_array(args.task_arrive_probabilities,args.number_of_servers,args.default_task_arrive_probabilities,float)
         task_size_mins = fill_array(args.task_size_mins,args.number_of_servers,args.default_task_size_mins,int)
@@ -152,10 +152,10 @@ def main():
 
         hyperparameters = {
                 "number_of_servers":args.number_of_servers,
-                "epochs":args.epochs,
                 "private_cpu_capacities":private_cpu_capacities,
                 "public_cpu_capacities":public_cpu_capacities,
-                "episode_time":episode_time,
+                "episode_time":args.episode_time,
+                "static_frequency":args.static_frequency,
                 "cloud_computational_capacity":cloud_computational_capacity,
                 "task_arrive_probabilities":task_arrive_probabilities,
                 "task_size_mins":task_size_mins,

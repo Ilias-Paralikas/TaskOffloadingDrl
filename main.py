@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=5, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,
@@ -22,7 +23,6 @@ def main():
     hyperparameters = bookkeeper.get_hyperparameters()
     
     number_of_servers=  hyperparameters['number_of_servers']
-    epochs = hyperparameters['epochs']
     env = Environment(
         number_of_servers=hyperparameters['number_of_servers'],
         private_cpu_capacities=hyperparameters['private_cpu_capacities'],
@@ -30,6 +30,7 @@ def main():
         connection_matrix=hyperparameters['connection_matrix'],
         cloud_computational_capacity=hyperparameters['cloud_computational_capacity'],
         episode_time=hyperparameters['episode_time'],
+        static_frequency=hyperparameters['static_frequency'],
         task_arrive_probabilities=hyperparameters['task_arrive_probabilities'],
         task_size_mins=hyperparameters['task_size_mins'],
         task_size_maxs=hyperparameters['task_size_maxs'],
@@ -79,7 +80,7 @@ def main():
                         device=device)
         agents.append(agent)
   
-    for epoch in range(epochs):
+    for epoch in range(args.epochs):
         observations,done, info = env.reset()
         local_observations,public_queues =observations
         while not done:
