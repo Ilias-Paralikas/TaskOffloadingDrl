@@ -99,7 +99,7 @@ def main():
         parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
         parser.add_argument('--memory_size', type=int, default=10000, help='Integer')
         parser.add_argument('--batch_size', type=int, default=64, help='Float')
-        parser.add_argument('--replace_target_iter', type=int, default=100, help='Float')
+        parser.add_argument('--replace_target_iter', type=int, default=2000, help='Float')
         args = parser.parse_args()
         
         
