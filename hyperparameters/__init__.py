@@ -81,7 +81,7 @@ def main():
         
         parser.add_argument('--skip_connections', type=int, default=0, help='Number of servers in the system')
         
-        parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
+        parser.add_argument('--topology_generator', type=str, default='fully_connected', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
         
         
