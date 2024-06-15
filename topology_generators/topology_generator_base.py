@@ -2,7 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class TopologyGeneratorBase():
-    def __init__(self,number_of_servers,symetric) -> None:
+    def __init__(self,
+                 number_of_servers,
+                 symetric,       
+                 *args, 
+                 **kwargs) -> None:
         self.number_of_servers= number_of_servers
         self.symetric = symetric
         self.number_of_clouds= 1

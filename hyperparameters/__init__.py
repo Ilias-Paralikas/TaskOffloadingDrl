@@ -3,7 +3,8 @@ import json
 import  os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from topology_generators import SkipConnections
+from topology_generators import SkipConnections, FullyConnected
+
 NUMBER_OF_CLOUDS =1
 
 def comma_seperated_string_to_list(comma_seperated_String,dtype):
@@ -23,7 +24,7 @@ def main():
         # file to get the hyperparameters from
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=1, help='Number of servers in the system')
+        parser.add_argument('--number_of_servers', type=int, default=3, help='Number of servers in the system')
         parser.add_argument('--epochs', type=int, default=1000, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
@@ -78,7 +79,7 @@ def main():
         parser.add_argument('--cloud_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--skip_connections', type=int, default=3, help='Number of servers in the system')
+        parser.add_argument('--skip_connections', type=int, default=0, help='Number of servers in the system')
         
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
@@ -127,7 +128,8 @@ def main():
         
         
         topology_generator_choices = {
-                'skip_connections':SkipConnections
+                'skip_connections':SkipConnections,
+                'fully_connected':FullyConnected
         }
         
         topology_generator = topology_generator_choices[args.topology_generator](
