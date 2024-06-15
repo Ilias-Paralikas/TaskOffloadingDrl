@@ -3,6 +3,7 @@ import json
 import numpy as np
 import sys
 import pickle
+import matplotlib.pyplot as plt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from topology_generators import plot_matrix
