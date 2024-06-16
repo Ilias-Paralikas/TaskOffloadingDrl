@@ -270,12 +270,12 @@ class Agent(DescisionMakerBase):
         q_target = reward_batch + self.gamma * q_target_next
 
         loss = self.loss_function(q_eval,q_target)
-        print("Old loss :",loss.item())
+        # print("Old loss :",loss.item())
         loss.backward()
         self.optimizer.step()
         
-        x = self.Q_eval_network(state_batch, lstm_sequence_batch).gather(1, action_batch.unsqueeze(1)).squeeze(1)
-        print("New Loss :",self.loss_function(x,q_target).item())
+        # x = self.Q_eval_network(state_batch, lstm_sequence_batch).gather(1, action_batch.unsqueeze(1)).squeeze(1)
+        # print("New Loss :",self.loss_function(x,q_target).item())
         self.epsilon = max(self.epsilon - self.epsilon_decrement, self.epsilon_end)
 
         if self.learn_step_counter % self.save_model_frequency == 0 :
