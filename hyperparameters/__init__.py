@@ -94,7 +94,7 @@ def main():
         parser.add_argument('--epsilon_decrement', type=float, default=1e-3, help='Float')
         parser.add_argument('--epsilon_end', type=float, default=0.01, help='Float')
         parser.add_argument('--gamma', type=float, default=0.99, help='Float')
-        parser.add_argument('--learning_rate', type=float, default=10, help='Float')
+        parser.add_argument('--learning_rate', type=float, default=1e-4, help='Float')
         parser.add_argument('--optimizer', type=str, default='Adam', help='selected from https://pytorch.org/docs/stable/optim.html#algorithms, provided as a string')
         parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
         parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')

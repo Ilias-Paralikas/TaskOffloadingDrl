@@ -220,14 +220,10 @@ class Agent(DescisionMakerBase):
             return new_state_dict
         def get_lstm_sequence(index):
             start_index = max(0, index - self.lstm_time_step + 1)
-            end_index = index + 1 
-            actual_length = end_index - start_index
-            sequence = torch.zeros((self.lstm_time_step, self.lstm_shape))
-            if start_index == 0 and actual_length < self.lstm_time_step:
-                sequence[-actual_length:] = torch.tensor(self.lstm_memory[start_index:end_index])
-            else:
-                sequence[:] = torch.tensor(self.lstm_memory[start_index:end_index])
-            return sequence
+            return torch.tensor(self.lstm_memory[start_index:index])
+
+        
+        
         if self.epsilon == self.epsilon_end:
             return
         if self.memory_counter <= self.batch_size+self.lstm_time_step:
@@ -246,7 +242,7 @@ class Agent(DescisionMakerBase):
 
 
         max_memory = min(self.memory_counter, self.memory_size)
-        batch_indices = np.random.choice(max_memory, self.batch_size, replace=False)
+        batch_indices = np.random.choice(range(self.lstm_time_step,max_memory), self.batch_size, replace=False)
 
         state_batch = torch.tensor(self.state_memory[batch_indices]).to(self.device)
         lstm_sequence_batch = [get_lstm_sequence(index) for index in batch_indices]
