@@ -23,7 +23,8 @@ class FullyConnected(TopologyGeneratorBase):
         for s in range(self.number_of_servers):
             for i in range(self.number_of_servers):
                 target = (s + i) % self.number_of_servers
-                self.connection_matrix[s][target] = self.horisontal_capacity_distributor.generate()
+                if target != s:
+                    self.connection_matrix[s][target] = self.horisontal_capacity_distributor.generate()
             self.connection_matrix[s][-1] = self.vertical_capacity_distributor.generate()
 
         if self.symetric:

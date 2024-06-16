@@ -8,6 +8,19 @@ from collections import deque
 import os 
 from .decision_maker_base import DescisionMakerBase
 
+
+
+# Set seeds for reproducibility
+import random
+seed = 42
+torch.manual_seed(seed)
+np.random.seed(seed)
+random.seed(seed)
+
+# Ensure CUDA operations are deterministic
+# Note: This may impact performance
+torch.backends.cudnn.deterministic = True
+
 class DeepQNetwork(nn.Module):
     def __init__(self,
                  state_dimensions,
@@ -167,7 +180,6 @@ class Agent(DescisionMakerBase):
         self.lstm_history.append(lstm_state)
         with torch.no_grad():
             if np.random.uniform() > self.epsilon:
-                self.lstm_history.append(lstm_state)
                 observation_np = np.expand_dims(observation,axis=0) # Convert the list of NumPy arrays to a single NumPy array
                 lstm_history_np = np.expand_dims(self.lstm_history,axis=0)  # Convert the list of NumPy arrays to a single NumPy array
 
@@ -206,16 +218,15 @@ class Agent(DescisionMakerBase):
             for key in target_state_dict.keys():
                 new_state_dict[key] = self.update_weight_percentage*eval_state_dict[key]  + target_state_dict[key] * (1 - self.update_weight_percentage)
             return new_state_dict
-
         def get_lstm_sequence(index):
             start_index = max(0, index - self.lstm_time_step + 1)
             end_index = index + 1 
             actual_length = end_index - start_index
+            sequence = torch.zeros((self.lstm_time_step, self.lstm_shape))
             if start_index == 0 and actual_length < self.lstm_time_step:
-                sequence = torch.zeros((self.lstm_time_step, self.lstm_shape))
                 sequence[-actual_length:] = torch.tensor(self.lstm_memory[start_index:end_index])
             else:
-                sequence = torch.tensor(self.lstm_memory[start_index:end_index])
+                sequence[:] = torch.tensor(self.lstm_memory[start_index:end_index])
             return sequence
         if self.epsilon == self.epsilon_end:
             return
@@ -234,7 +245,7 @@ class Agent(DescisionMakerBase):
 
 
 
-        max_memory = min(self.memory_counter, self.memory_size-1)
+        max_memory = min(self.memory_counter, self.memory_size)
         batch_indices = np.random.choice(max_memory, self.batch_size, replace=False)
 
         state_batch = torch.tensor(self.state_memory[batch_indices]).to(self.device)
@@ -254,14 +265,17 @@ class Agent(DescisionMakerBase):
         q_next_target = self.Q_target_network(next_state_batch, next_lstm_sequence_batch)
         q_target_next = q_next_target.gather(1, next_actions.unsqueeze(1)).squeeze(1)
         
-        mask = ~terminal_batch
+        mask = (terminal_batch == 0)
         q_target_next = q_target_next * mask
         q_target = reward_batch + self.gamma * q_target_next
 
         loss = self.loss_function(q_eval,q_target)
+        print("Old loss :",loss.item())
         loss.backward()
         self.optimizer.step()
-
+        
+        x = self.Q_eval_network(state_batch, lstm_sequence_batch).gather(1, action_batch.unsqueeze(1)).squeeze(1)
+        print("New Loss :",self.loss_function(x,q_target).item())
         self.epsilon = max(self.epsilon - self.epsilon_decrement, self.epsilon_end)
 
         if self.learn_step_counter % self.save_model_frequency == 0 :

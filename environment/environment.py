@@ -4,7 +4,7 @@ from .task_generator import TaskGenerator
 from .matchmaker import Matchmaker
 from utils import merge_dicts,dict_to_array,remove_diagonal_and_reshape
 import numpy as np
-
+import torch
 
 class Environment():
     def __init__(self, 
@@ -82,6 +82,7 @@ class Environment():
         if self.static_frequency:
             if self.static_counter % self.static_frequency ==0:
                 np.random.seed(0)
+                torch.manual_seed(0)
                 self.static_counter+=1
         self.current_time = 0
         for task_generator in self.task_generators:
