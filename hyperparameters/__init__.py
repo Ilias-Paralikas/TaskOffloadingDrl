@@ -35,7 +35,7 @@ def main():
         parser.add_argument('--episode_time', type=int, default=100, help='Number of servers in the system')
         
         
-        parser.add_argument('--static_frequency', type=int, default=1, help='Number of servers in the system')
+        parser.add_argument('--static_frequency', type=int, default=0, help='Number of servers in the system')
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=20, help='Number of servers in the system')
         
