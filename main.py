@@ -79,6 +79,8 @@ def main():
                         replace_target_iter=hyperparameters['replace_target_iter'],
                         device=device)
         agents.append(agent)
+        
+    print(hyperparameters)
   
     for epoch in range(args.epochs):
         observations,done, info = env.reset()
