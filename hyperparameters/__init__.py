@@ -72,7 +72,7 @@ def main():
         parser.add_argument('--drop_penalty_maxs', type=str, default=None, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_distributions', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--horizontal_capacities_min', type=float, default=10, help='Number of servers in the system')
+        parser.add_argument('--horizontal_capacities_min', type=float, default=1000, help='Number of servers in the system')
         parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
