@@ -164,15 +164,28 @@ class PublicQueueManager():
     def step(self):
         drop_rewards ={}
         for server_id in self.supporting_servers:
+            time = self.public_queues[server_id].current_time
+            if not self.public_queues[server_id].is_empty():
+                arrival_time = self.public_queues[server_id].current_task.arrival_time
+                timeout = arrival_time +self.public_queues[server_id].current_task.timeout_delay
+                drop =self.public_queues[server_id].current_task.drop_penalty
             drop_rewards[server_id]= self.public_queues[server_id].get_first_non_empty_element()
-         
+        
         finished_rewards = {}
         active_queues,total_priority= self.get_active_queues()
+        
         if active_queues!=0:
             distributed_computational_capacity = self.computational_capacity/total_priority
         else:
             distributed_computational_capacity = 0
+       
         for server_id in self.supporting_servers:
+            if not self.public_queues[server_id].is_empty():
+
+                remain = self.public_queues[server_id].current_task.remain
+                time = self.public_queues[server_id].current_time
+                arrival_time = self.public_queues[server_id].current_task.arrival_time
+                timeout = arrival_time +self.public_queues[server_id].current_task.timeout_delay
             finished_rewards[server_id]= self.public_queues[server_id].step(distributed_computational_capacity)
          
         rewards = merge_dicts(drop_rewards,finished_rewards)
