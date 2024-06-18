@@ -103,7 +103,7 @@ class BookKeeper:
         self.rewards =[]
         
         score, average_score = np.mean(self.metrics['rewards_history'][-1]), np.mean(self.metrics['rewards_history'][-self.average_window:])
-        print(f'Epoch: {epochs} Score: {score:.3f} Average Score: {average_score:.3f} Epsilon: {epsilon:.3f}')
+        print(f'Epoch: {epochs} \tScore: {score:.3f} \tAverage Score: {average_score:.3f} \tEpsilon: {epsilon:.3f}')
         
 
     def plot_and_save(self, key):
