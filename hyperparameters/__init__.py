@@ -66,9 +66,9 @@ def main():
         parser.add_argument('--computational_density_maxs', type=str, default=None, help='Number of servers in the system')
         parser.add_argument('--computational_density_distributions', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--default_drop_penalty_mins', type=int, default=1, help='Number of servers in the system')
+        parser.add_argument('--default_drop_penalty_mins', type=int, default=10, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_drop_penalty_maxs', type=int, default=1, help='Number of servers in the system')
+        parser.add_argument('--default_drop_penalty_maxs', type=int, default=10, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_maxs', type=str, default=None, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_distributions', type=str, default='constant', help='Number of servers in the system')
         
