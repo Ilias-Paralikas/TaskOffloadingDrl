@@ -223,9 +223,7 @@ class Agent(DescisionMakerBase):
             return torch.tensor(self.lstm_memory[start_index:index])
 
         
-        
-        if self.epsilon == self.epsilon_end:
-            return
+    
         if self.memory_counter <= self.batch_size+self.lstm_time_step:
             return 
 
