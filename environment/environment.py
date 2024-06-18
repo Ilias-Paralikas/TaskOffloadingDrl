@@ -100,7 +100,6 @@ class Environment():
     def reset_transmitted_tasks(self):
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
     
-        self.tasks = [t.step() for t in self.task_generators]
     def scale_rewards(self,reward):
         return reward/self.max_penantly
     def pack_observation(self):

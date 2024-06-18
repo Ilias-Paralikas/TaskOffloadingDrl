@@ -26,18 +26,18 @@ def main():
         
         parser.add_argument('--number_of_servers', type=int, default=3, help='Number of servers in the system')
 
-        parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
+        parser.add_argument('--default_private_cpu_capacity', type=float, default=1, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
         
-        parser.add_argument('--default_public_cpu_capacity', type=float, default=5, help='Number of servers in the system')
+        parser.add_argument('--default_public_cpu_capacity', type=float, default=1, help='Number of servers in the system')
         parser.add_argument('--public_cpu_capacities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--episode_time', type=int, default=100, help='Number of servers in the system')
         
         
-        parser.add_argument('--static_frequency', type=int, default=0, help='Number of servers in the system')
+        parser.add_argument('--static_frequency', type=int, default=1, help='Number of servers in the system')
         
-        parser.add_argument('--cloud_computational_capacity', type=float, default=20, help='Number of servers in the system')
+        parser.add_argument('--cloud_computational_capacity', type=float, default=1000, help='Number of servers in the system')
         
         parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
@@ -76,7 +76,7 @@ def main():
         parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Number of servers in the system')
+        parser.add_argument('--cloud_capacities_min', type=float, default=1000, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
