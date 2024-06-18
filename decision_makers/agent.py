@@ -176,6 +176,7 @@ class Agent(DescisionMakerBase):
             self.lstm_history.append(np.zeros([self.lstm_shape]))
     
     def choose_action(self,observation,lstm_state):
+        return 0
         
         self.lstm_history.append(lstm_state)
         with torch.no_grad():
