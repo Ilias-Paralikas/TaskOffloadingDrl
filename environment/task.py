@@ -17,7 +17,7 @@ class Task():
             self.timeout_delay = timeout_delay
             self.priotiry = priotiry
             self.computational_density = computational_density
-            self.drop_penalty = drop_penalty*timeout_delay
+            self.drop_penalty = drop_penalty
             self.timeout_instance = arrival_time + timeout_delay
             self.origin_server_id = origin_server_id
             self.target_server_id = target_server_id

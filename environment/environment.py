@@ -154,6 +154,7 @@ class Environment():
         observations = self.pack_observation()
         rewards  = dict_to_array(rewards,self.number_of_servers)
         rewards = self.scale_rewards(rewards)
+        rewards = -rewards
         
         info  ={}
         info['rewards'] = rewards
