@@ -33,7 +33,7 @@ def main():
         parser.add_argument('--public_cpu_capacities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--episode_time', type=int, default=100, help='Number of servers in the system')
-        
+        parser.add_argument('--time_step', type=int, default=0.1, help='Number of servers in the system')
         
         parser.add_argument('--static_frequency', type=int, default=0, help='Number of servers in the system')
         
@@ -66,9 +66,9 @@ def main():
         parser.add_argument('--computational_density_maxs', type=str, default=None, help='Number of servers in the system')
         parser.add_argument('--computational_density_distributions', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--default_drop_penalty_mins', type=int, default=10, help='Number of servers in the system')
+        parser.add_argument('--default_drop_penalty_mins', type=int, default=40, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_drop_penalty_maxs', type=int, default=10, help='Number of servers in the system')
+        parser.add_argument('--default_drop_penalty_maxs', type=int, default=40, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_maxs', type=str, default=None, help='Number of servers in the system')
         parser.add_argument('--drop_penalty_distributions', type=str, default='constant', help='Number of servers in the system')
         
@@ -76,11 +76,11 @@ def main():
         parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--cloud_capacities_min', type=float, default=10, help='Number of servers in the system')
-        parser.add_argument('--cloud_capacities_max', type=float, default=10, help='Number of servers in the system')
+        parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Number of servers in the system')
+        parser.add_argument('--cloud_capacities_max', type=float, default=20, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--skip_connections', type=int, default=4, help='Number of servers in the system')
+        parser.add_argument('--skip_connections', type=int, default=5, help='Number of servers in the system')
         
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
@@ -132,13 +132,18 @@ def main():
                 'fully_connected':FullyConnected
         }
         
+        
+        hidden_layers = comma_seperated_string_to_list(args.hidden_layers,int)
+        epsilon_decrement = args.epsilon_decrement/(args.episode_time +max(timeout_delay_maxs))
+        
+
         topology_generator = topology_generator_choices[args.topology_generator](
                 number_of_servers=args.number_of_servers,
-                horizontal_capacities_min=args.horizontal_capacities_min,
-                horizontal_capacities_max=args.horizontal_capacities_max,
+                horizontal_capacities_min=args.horizontal_capacities_min*args.time_step,
+                horizontal_capacities_max=args.horizontal_capacities_max*args.time_step,
                 horizontal_capacities_distribution=args.horizontal_capacities_distribution,
-                cloud_capacities_min=args.cloud_capacities_min,
-                cloud_capacities_max=args.cloud_capacities_max,
+                cloud_capacities_min=args.cloud_capacities_min*args.time_step,
+                cloud_capacities_max=args.cloud_capacities_max*args.time_step,
                 cloud_capacities_distribution=args.cloud_capacities_distribution,
                 skip_connections=args.skip_connections,
                 symetric=args.symetric
@@ -146,20 +151,18 @@ def main():
         connection_matrix = topology_generator.create_topology()
         connection_matrix = connection_matrix.tolist()
         
-        hidden_layers = comma_seperated_string_to_list(args.hidden_layers,int)
-        epsilon_decrement = args.epsilon_decrement/(args.episode_time +max(timeout_delay_maxs))
+        mull_array = lambda  arr,x : [x *e for e in arr]
 
-
-        hyperparameters = {
+        hyperparameters = { 
                 "number_of_servers":args.number_of_servers,
-                "private_cpu_capacities":private_cpu_capacities,
-                "public_cpu_capacities":public_cpu_capacities,
+                "private_cpu_capacities":mull_array(private_cpu_capacities,args.time_step),
+                "public_cpu_capacities":mull_array(public_cpu_capacities,args.time_step),
                 "episode_time":args.episode_time,
                 "static_frequency":args.static_frequency,
-                "cloud_computational_capacity":cloud_computational_capacity,
+                "cloud_computational_capacity":cloud_computational_capacity*args.time_step,
                 "task_arrive_probabilities":task_arrive_probabilities,
-                "task_size_mins":task_size_mins,
-                "task_size_maxs":task_size_maxs,
+                "task_size_mins":mull_array(task_size_mins,args.time_step),
+                "task_size_maxs":mull_array(task_size_maxs,args.time_step),
                 "task_size_distributions":task_size_distributions,
                 "timeout_delay_mins":timeout_delay_mins,
                 "timeout_delay_maxs":timeout_delay_maxs,

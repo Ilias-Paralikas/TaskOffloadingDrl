@@ -27,6 +27,7 @@ class Task():
             
     def drop_task(self) -> int:
         self.empty = True
+        print('dropped task')
         return self.drop_penalty
     
     
