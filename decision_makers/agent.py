@@ -10,17 +10,6 @@ from .decision_maker_base import DescisionMakerBase
 
 
 
-# Set seeds for reproducibility
-import random
-seed = 42
-torch.manual_seed(seed)
-np.random.seed(seed)
-random.seed(seed)
-
-# Ensure CUDA operations are deterministic
-# Note: This may impact performance
-torch.backends.cudnn.deterministic = True
-
 class DeepQNetwork(nn.Module):
     def __init__(self,
                  state_dimensions,
