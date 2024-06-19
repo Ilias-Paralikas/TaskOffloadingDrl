@@ -38,7 +38,6 @@ class Environment():
         self.episode_time_end = episode_time +max(timeout_delay_maxs)
         self.connection_matrix=  connection_matrix
         get_column = lambda m, i: [row[i] for row in m]
-        self.max_penantly = max(drop_penalty_maxs) *max(timeout_delay_maxs)
         self.task_generators = [TaskGenerator(id=i,
                                               episode_time=episode_time,
                                               task_arrive_probability=task_arrive_probabilities[i],
@@ -78,6 +77,9 @@ class Environment():
         self.static_frequency = static_frequency
         self.static_counter = 0
         
+        self.max_reward = max(drop_penalty_maxs)
+        self.max_waiting_time = max(timeout_delay_maxs)
+        self.get_task_features_maxs()
     def reset(self):
         
         
@@ -110,7 +112,17 @@ class Environment():
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
     
     def scale_rewards(self,reward):
-        return reward/self.max_penantly
+        return reward/self.max_reward
+    
+    def get_task_features_maxs(self):
+        self.feature_maxes = self.task_generators[0].get_maxs()
+        for g in self.task_generators:
+            np.maximum(self.feature_maxes, g.get_maxs(), out=self.feature_maxes)  # Compare and store the max values
+
+    def scale_task_features(self,task_features):
+        return task_features/self.feature_maxes
+    def scale_waiting_times(self,waiting_times):
+        return waiting_times/self.max_waiting_time
     def pack_observation(self):
         local_observations = np.zeros((self.number_of_servers,self.number_of_features))
         public_queues  = [np.array([]) for key in range(self.number_of_servers+self.number_of_clouds)]
@@ -120,7 +132,9 @@ class Environment():
                 task_features = self.tasks[s].get_features()
             else:
                 task_features = np.zeros(self.number_of_task_features)
-            waiting_times,server_public_queues = self.servers[s].get_features()            
+            task_features = self.scale_task_features(task_features)
+            waiting_times,server_public_queues = self.servers[s].get_features()     
+            waiting_times = self.scale_waiting_times(waiting_times)       
             server_features = np.concatenate([task_features,waiting_times])
             local_observations[s] = server_features
         

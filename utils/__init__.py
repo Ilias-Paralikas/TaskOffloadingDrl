@@ -41,7 +41,7 @@ class Variabledistributor():
         self.distribution_choices = {
             "uniform":lambda :np.random.uniform(self.min,self.max),
             "choice": lambda :np.random.choice(range(self.min,self.max+1)),
-            'constant':lambda :self.min,
+            'constant':lambda :self.max,
         }
         self.distribution = self.distribution_choices[distribution]
 

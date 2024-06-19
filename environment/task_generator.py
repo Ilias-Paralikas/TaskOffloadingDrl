@@ -32,6 +32,12 @@ class TaskGenerator():
         self.computational_density_distributor =Variabledistributor(computational_density_min,computational_density_max,computational_density_distribution)
         self.drop_penalty_distributor =Variabledistributor(drop_penalty_min,drop_penalty_max,drop_penalty_distribution)
         self.current_time = 0
+        self.size_max  = size_max
+        self.timeout_delay_max = timeout_delay_max
+        self.priotiry_max = priotiry_max
+        self.computational_density_max = computational_density_max
+        self.drop_penalty_max = drop_penalty_max
+        
     def reset(self):
         self.current_time = -1
     def step(self):
@@ -56,3 +62,10 @@ class TaskGenerator():
                     drop_penalty=drop_penalty)
     def get_number_of_features(self):
        return self.generate().get_number_of_features()
+   
+    def get_maxs(self):
+            return np.array([self.size_max,
+                                self.timeout_delay_max,
+                                self.priotiry_max,
+                                self.computational_density_max,
+                                self.drop_penalty_max])       

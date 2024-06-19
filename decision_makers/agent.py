@@ -36,7 +36,7 @@ class DeepQNetwork(nn.Module):
         last_layer_size = state_dimensions+lstm_output_shape
         for next_layer_size in hidden_layers:
             layers.append(nn.Linear(last_layer_size, next_layer_size))
-            layers.append(nn.ReLU())
+            layers.append(nn.LeakyReLU())
             layers.append(nn.Dropout(dropout_rate))
             last_layer_size = next_layer_size
 
@@ -130,7 +130,7 @@ class Agent(DescisionMakerBase):
                                                 dueling = dueling).to(device)
         self.load_model()
         self.Q_target_network  = copy.deepcopy(self.Q_eval_network).to(device)
-        
+        self.Q_target_network.eval()
         self.loss_function = loss_function()
         self.optimizer = optimizer(self.Q_eval_network.parameters(),lr=learning_rate)
             
