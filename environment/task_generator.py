@@ -53,7 +53,7 @@ class TaskGenerator():
         timeout_delay = self.timeout_distributor.generate()
         priotiry = self.priotiry_distributor.generate()
         computational_density = self.computational_density_distributor.generate()
-        drop_penalty = timeout_delay* self.drop_penalty_distributor.generate()
+        drop_penalty = self.drop_penalty_distributor.generate()
         return Task(size=size,
                     arrival_time=self.current_time,
                     timeout_delay=timeout_delay,
