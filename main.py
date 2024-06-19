@@ -93,15 +93,15 @@ def main():
             local_observations_,public_queues_ =observations
             bookkeeper.store_step(info)
 
-            # for i in range(number_of_servers):
-            #         agents[i].store_transitions(state = local_observations[i],
-            #                                     lstm_state=public_queues[i],
-            #                                     action = actions[i],
-            #                                     reward= rewards[i],
-            #                                     new_state=local_observations_[i],
-            #                                     new_lstm_state=public_queues_[i],
-            #                                     done=done)
-                    # agents[i].learn()
+            for i in range(number_of_servers):
+                    agents[i].store_transitions(state = local_observations[i],
+                                                lstm_state=public_queues[i],
+                                                action = actions[i],
+                                                reward= rewards[i],
+                                                new_state=local_observations_[i],
+                                                new_lstm_state=public_queues_[i],
+                                                done=done)
+                    agents[i].learn()
                     
             local_observations,public_queues  = local_observations_,public_queues_
         for agent in agents:
