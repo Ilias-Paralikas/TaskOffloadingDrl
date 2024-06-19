@@ -5,7 +5,7 @@ import sys
 import pickle
 import matplotlib.pyplot as plt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from utils import sum_dicts_in_positions
 from topology_generators import plot_matrix
 class BookKeeper:
     def __init__(self,
@@ -168,13 +168,12 @@ class BookKeeper:
         plt.close()
         
     def plot_actions(self):
-        for agent in range(len(self.metrics['actions_history'])):
-            agent_actions=  [row[agent] for row in self.metrics['actions_history']]
+        def plot_single_action(agent_actions,title,savefile):
             local_values = [d['local'] for d in agent_actions]
             horizontal_values = [d['horisontal'] for d in agent_actions]  # Note the typo in 'horizontal'
             cloud_values = [d['cloud'] for d in agent_actions]
 
-            # Time points
+         # Time points
             time = list(range(len(agent_actions)))
 
             # Plotting
@@ -184,14 +183,25 @@ class BookKeeper:
             plt.plot(time, cloud_values, label='Cloud', marker='o')
 
             # Adding plot decorations
-            plt.title('Actions of agent {agent}')
+            plt.title(title)
             plt.xlabel('Episode')
             plt.ylabel('Number Of Time chosen')
             plt.legend()
 
-        
-            plt.savefig(f'{self.run_folder}/actions_{agent}.png')
+            plt.savefig(savefile)
             plt.close()
+        actions_folder = f'{self.run_folder}/actions'
+        os.mkdir(actions_folder)
+        for agent in range(len(self.metrics['actions_history'])):
+            agent_actions=  [row[agent] for row in self.metrics['actions_history']]
+            title = 'Actions of agent {agent}'
+            savefile = f'{actions_folder}/actions_{agent}.png'
+            plot_single_action(agent_actions,title,savefile)
+        total_actions = sum_dicts_in_positions(self.metrics['actions_history'])
+        title = 'Total Actions'
+        savefile = f'{actions_folder}/actions_total.png'
+        plot_single_action(total_actions,title,savefile)
+          
         return
         
     def plot_metrics(self):

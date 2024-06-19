@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def merge_dicts(dict1, dict2):
     # Initialize the result dictionary
@@ -50,7 +51,6 @@ class Variabledistributor():
     
     
 
-import matplotlib.pyplot as plt
 def visualize_2d_array(connection_matrix,save_location, cmap='viridis'):
     fig, ax = plt.subplots()
     heatmap = ax.imshow(connection_matrix, cmap=cmap)
@@ -71,3 +71,21 @@ def visualize_2d_array(connection_matrix,save_location, cmap='viridis'):
     ax.xaxis.set_label_position('top')
     
     plt.savefig(save_location)
+    
+def sum_dicts_in_positions(list_of_lists):
+    # Assuming all sublists have the same length
+    num_dicts = len(list_of_lists[0])   
+    summed_dicts = []
+
+    for i in range(num_dicts):
+        # Initialize a new dictionary to store the sums for the current position
+        sum_dict = {}
+        for sublist in list_of_lists:
+            for key, value in sublist[i].items():
+                if key in sum_dict:
+                    sum_dict[key] += value
+                else:
+                    sum_dict[key] = value
+        summed_dicts.append(sum_dict)
+
+    return summed_dicts
