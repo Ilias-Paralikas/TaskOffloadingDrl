@@ -145,13 +145,14 @@ class Environment():
         for q in cloud_public_queues:
             public_queues[q] = np.append(public_queues[q], cloud_public_queues[q])      
         return local_observations,public_queues
-    def add_action_info(self,action,server_id):
-        if action ==server_id:
-            self.actions[server_id]['local'] +=1
-        elif action == self.number_of_servers:
-            self.actions[server_id]['cloud'] +=1
-        else:
-            self.actions[server_id]['horisontal'] +=1
+    def add_action_info(self,action,server_id,task):
+        if task:
+            if action ==server_id:
+                self.actions[server_id]['local'] +=1
+            elif action == self.number_of_servers:
+                self.actions[server_id]['cloud'] +=1
+            else:
+                self.actions[server_id]['horisontal'] +=1
     def step(self,actions):
 
         assert len(actions) == self.number_of_servers
@@ -170,7 +171,7 @@ class Environment():
         
         for server_id in range(self.number_of_servers):
             action = self.matchmakers[server_id].match_action(server_id,actions[server_id])
-            self.add_action_info(action,server_id)
+            self.add_action_info(action,server_id,self.tasks[server_id])
             transmited_task, server_reward = self.servers[server_id].step(action,self.tasks[server_id])
             rewards = merge_dicts(rewards,server_reward)
             if transmited_task:

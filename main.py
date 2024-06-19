@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=2, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=10, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,
@@ -81,7 +81,8 @@ def main():
         agents.append(agent)
         
     for key in hyperparameters:
-        print(key ," : ",hyperparameters[key])
+        if key != 'connection_matrix':
+            print(key ," : ",hyperparameters[key])
     for epoch in range(args.epochs):
         observations,done, info = env.reset()
         local_observations,public_queues =observations

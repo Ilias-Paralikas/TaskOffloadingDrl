@@ -73,6 +73,9 @@ class Task():
     def get_size(self):
         assert not self.empty
         return self.size
+    def get_relative_timeout(self):
+        assert not self.empty
+        return self.timeout_delay
     def get_timeout(self):
         assert not self.empty
         return self.timeout_instance

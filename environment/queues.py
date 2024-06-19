@@ -63,7 +63,7 @@ class ProcessingQueue(TaskQueue):
     def update_waiting_time(self,task):
         process_per_time_period = self.computational_capacity / task.get_density()
         time_to_process_task = math.ceil(task.get_size()/process_per_time_period)
-        timeout_time = max(0,task.get_timeout()-self.waiting_time)
+        timeout_time = max(0,task.get_relative_timeout()-self.waiting_time)
         self.waiting_time += min(timeout_time,time_to_process_task)
         
     def add_task(self,task):
@@ -95,7 +95,7 @@ class OffloadingQueue(TaskQueue):
         target_server_id = task.get_target_server_id()
         offloading_capacity = self.offloading_capacities[target_server_id]
         time_to_transmit_task =  math.ceil(task.get_size()/ offloading_capacity)
-        timeout_time = max(0,task.get_timeout()- self.waiting_time)
+        timeout_time = max(0,task.get_relative_timeout()- self.waiting_time)
         self.waiting_time += min(timeout_time,time_to_transmit_task)
         
     

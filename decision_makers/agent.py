@@ -163,7 +163,7 @@ class Agent(DescisionMakerBase):
         for _ in range(self.lstm_time_step):
             self.lstm_history.append(np.zeros([self.lstm_shape]))
     
-    def choose_action(self,observation,lstm_state):     
+    def choose_action(self,observation,lstm_state):  
         self.lstm_history.append(lstm_state)
         with torch.no_grad():
             if np.random.uniform() > self.epsilon:
