@@ -168,6 +168,7 @@ class Agent(DescisionMakerBase):
         self.lstm_history.append(lstm_state)
         with torch.no_grad():
             if np.random.uniform() > self.epsilon:
+                self.Q_eval_network.eval()
                 observation_np = np.expand_dims(observation,axis=0) # Convert the list of NumPy arrays to a single NumPy array
                 lstm_history_np = np.expand_dims(self.lstm_history,axis=0)  # Convert the list of NumPy arrays to a single NumPy array
 

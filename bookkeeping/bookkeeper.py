@@ -191,8 +191,8 @@ class BookKeeper:
             plt.savefig(savefile)
             plt.close()
         actions_folder = f'{self.run_folder}/actions'
-        os.mkdir(actions_folder)
-        for agent in range(len(self.metrics['actions_history'])):
+        os.makedirs(actions_folder,exist_ok=True)
+        for agent in range(len(self.metrics['actions_history'][0])):
             agent_actions=  [row[agent] for row in self.metrics['actions_history']]
             title = 'Actions of agent {agent}'
             savefile = f'{actions_folder}/actions_{agent}.png'
