@@ -89,7 +89,7 @@ def main():
         parser.add_argument('--hidden_layers', type=str, default='1024,1024,1024', help='comma-separated integers')
         parser.add_argument('--lstm_layers', type=int, default=20, help='Integer')
         parser.add_argument('--lstm_time_step', type=int, default=10, help='Integer')
-        parser.add_argument('--dropout_rate', type=float, default=0.0, help='Float')
+        parser.add_argument('--dropout_rate', type=float, default=0.5, help='Float')
         parser.add_argument('--dueling', type=bool, default=True, help='Boolean')
         parser.add_argument('--epsilon_decrement', type=float, default=1e-3, help='Float')
         parser.add_argument('--epsilon_end', type=float, default=0.01, help='Float')
