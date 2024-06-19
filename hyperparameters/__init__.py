@@ -24,7 +24,7 @@ def main():
         # file to get the hyperparameters from
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=3, help='Number of servers in the system')
+        parser.add_argument('--number_of_servers', type=int, default=8, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
@@ -80,7 +80,7 @@ def main():
         parser.add_argument('--cloud_capacities_max', type=float, default=20, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--skip_connections', type=int, default=5, help='Number of servers in the system')
+        parser.add_argument('--skip_connections', type=int, default=3, help='Number of servers in the system')
         
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
@@ -99,7 +99,7 @@ def main():
         parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
         parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')
         parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
-        parser.add_argument('--memory_size', type=int, default=10000, help='Integer')
+        parser.add_argument('--memory_size', type=int, default=1e6, help='Integer')
         parser.add_argument('--batch_size', type=int, default=64, help='Float')
         parser.add_argument('--replace_target_iter', type=int, default=2000, help='Float')
         args = parser.parse_args()

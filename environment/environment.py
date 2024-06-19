@@ -79,6 +79,9 @@ class Environment():
         self.static_counter = 0
         
     def reset(self):
+        
+        
+        
         if self.static_frequency:
             if self.static_counter % self.static_frequency ==0:
                 np.random.seed(0)
