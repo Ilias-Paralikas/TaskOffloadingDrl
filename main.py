@@ -80,8 +80,8 @@ def main():
                         device=device)
         agents.append(agent)
         
-    print(hyperparameters)
-  
+    for key in hyperparameters:
+        print(key ," : ",hyperparameters[key])
     for epoch in range(args.epochs):
         observations,done, info = env.reset()
         local_observations,public_queues =observations
