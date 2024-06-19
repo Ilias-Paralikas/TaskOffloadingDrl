@@ -130,7 +130,6 @@ class Agent(DescisionMakerBase):
                                                 dueling = dueling).to(device)
         self.load_model()
         self.Q_target_network  = copy.deepcopy(self.Q_eval_network).to(device)
-        self.Q_target_network.eval()
         self.loss_function = loss_function()
         self.optimizer = optimizer(self.Q_eval_network.parameters(),lr=learning_rate)
             
@@ -217,6 +216,7 @@ class Agent(DescisionMakerBase):
             return 
 
         self.Q_eval_network.train()
+        
 
         self.learn_step_counter +=1
         if self.learn_step_counter % self.replace_target_iter == 0:
