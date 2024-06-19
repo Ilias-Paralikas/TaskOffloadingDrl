@@ -118,11 +118,7 @@ class Task():
                     target_server_id = self.target_server_id)
         
     def get_features(self):
-        return np.array([self.size,
-                self.timeout_delay,
-                self.priotiry,
-                self.computational_density,
-                self.drop_penalty])
+        return np.array([self.size])
     def get_number_of_features(self):
         features =  self.get_features()
         return len(features)

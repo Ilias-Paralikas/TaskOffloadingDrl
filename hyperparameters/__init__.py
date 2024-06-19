@@ -24,7 +24,7 @@ def main():
         # file to get the hyperparameters from
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=20, help='Number of servers in the system')
+        parser.add_argument('--number_of_servers', type=int, default=1, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
@@ -73,7 +73,7 @@ def main():
         parser.add_argument('--drop_penalty_distributions', type=str, default='constant', help='Number of servers in the system')
         
         parser.add_argument('--horizontal_capacities_min', type=float, default=10, help='Number of servers in the system')
-        parser.add_argument('--horizontal_capacities_max', type=float, default=10000, help='Number of servers in the system')
+        parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
         parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Number of servers in the system')

@@ -19,3 +19,5 @@ class DescisionMakerBase():
     pass
   def average_Weights(self,*args, **kwargs):
     pass
+  def reset_lstm_history(self,*args, **kwargs):
+    pass
