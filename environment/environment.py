@@ -99,6 +99,12 @@ class Environment():
         observations = self.pack_observation()
         done = False
         info = {}
+        self.actions  =[{
+                'local':0,
+                'horisontal':0,
+                'cloud':0
+            }
+            for _ in range(self.number_of_servers)]
         return observations,done, info
     def reset_transmitted_tasks(self):
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
@@ -125,6 +131,13 @@ class Environment():
         for q in cloud_public_queues:
             public_queues[q] = np.append(public_queues[q], cloud_public_queues[q])      
         return local_observations,public_queues
+    def add_action_info(self,action,server_id):
+        if action ==server_id:
+            self.actions[server_id]['local'] +=1
+        elif action == self.number_of_servers:
+            self.actions[server_id]['cloud'] +=1
+        else:
+            self.actions[server_id]['horisontal'] +=1
     def step(self,actions):
 
         assert len(actions) == self.number_of_servers
@@ -143,6 +156,7 @@ class Environment():
         
         for server_id in range(self.number_of_servers):
             action = self.matchmakers[server_id].match_action(server_id,actions[server_id])
+            self.add_action_info(action,server_id)
             transmited_task, server_reward = self.servers[server_id].step(action,self.tasks[server_id])
             rewards = merge_dicts(rewards,server_reward)
             if transmited_task:
@@ -164,7 +178,7 @@ class Environment():
         
         return observations,rewards, done, info
         
-        
+    
     def get_server_dimensions(self,id):
         return (self.servers[id].get_number_of_features(),
                 self.servers[id].get_number_of_actions()-1,
@@ -172,3 +186,6 @@ class Environment():
         )
     def get_task_features(self):
         return self.task_generators[0].get_number_of_features()
+    
+    def get_episode_actions(self):
+        return self.actions

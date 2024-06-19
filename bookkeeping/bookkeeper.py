@@ -13,6 +13,8 @@ class BookKeeper:
                  hyperparameters_source_file=None,
                  resume_run=None,
                  average_window=500):
+        
+        self.plotable_metrics = ['rewards_history']
         self.log_folder = log_folder
         self.average_window = average_window
         os.makedirs(log_folder, exist_ok=True)
@@ -61,6 +63,7 @@ class BookKeeper:
             self.metrics ={}
             self.metrics['epsilon_history'] =[1.0]
             self.metrics['rewards_history'] =[]
+            self.metrics['actions_history'] = []
 
                 
             with open(self.metrics_folder, 'wb') as f:
@@ -89,10 +92,12 @@ class BookKeeper:
     def store_step(self,info):
         self.rewards.append(info['rewards'])
         
-    def store_episode(self,epsilon):
+    def store_episode(self,epsilon,actions):
         episode_rewards = np.vstack(self.rewards)
         episode_rewards=  np.sum(episode_rewards,axis=0)
         self.metrics['rewards_history'].append(episode_rewards)
+        
+        self.metrics['actions_history'].append(actions)
         
         epochs = len(self.metrics['rewards_history'])
         self.metrics['epsilon_history'].append(epsilon)
@@ -108,7 +113,7 @@ class BookKeeper:
 
     def plot_and_save(self, key):
         if key not in self.metrics:
-            print(f"No data found for key '{key}'")
+            print(f"No agent_actions found for key '{key}'")
             return
         list_of_arrays = self.metrics[key]
         stacked_arrays = np.vstack(list_of_arrays)
@@ -131,7 +136,7 @@ class BookKeeper:
         
     def plot_and_save_moving_avg(self, key):
         if key not in self.metrics:
-            print(f"No data found for key '{key}'")
+            print(f"No agent_actions found for key '{key}'")
             return
       
 
@@ -162,10 +167,38 @@ class BookKeeper:
         plt.savefig(f'{self.run_folder}/{key}_moving_average.png')
         plt.close()
         
+    def plot_actions(self):
+        for agent in range(len(self.metrics['actions_history'])):
+            agent_actions=  [row[agent] for row in self.metrics['actions_history']]
+            local_values = [d['local'] for d in agent_actions]
+            horizontal_values = [d['horisontal'] for d in agent_actions]  # Note the typo in 'horizontal'
+            cloud_values = [d['cloud'] for d in agent_actions]
+
+            # Time points
+            time = list(range(len(agent_actions)))
+
+            # Plotting
+            plt.figure(figsize=(10, 6))
+            plt.plot(time, local_values, label='Local', marker='o')
+            plt.plot(time, horizontal_values, label='Horizontal', marker='o')
+            plt.plot(time, cloud_values, label='Cloud', marker='o')
+
+            # Adding plot decorations
+            plt.title('Actions of agent {agent}')
+            plt.xlabel('Episode')
+            plt.ylabel('Number Of Time chosen')
+            plt.legend()
+
+        
+            plt.savefig(f'{self.run_folder}/actions_{agent}.png')
+            plt.close()
+        return
         
     def plot_metrics(self):
         for key in self.metrics.keys():
-            self.plot_and_save(key)
-            self.plot_and_save_moving_avg(key)
+            if key in self.plotable_metrics:
+                self.plot_and_save(key)
+                self.plot_and_save_moving_avg(key)
+        self.plot_actions()
 
         

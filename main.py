@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=5, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=2, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,
@@ -89,27 +89,26 @@ def main():
             actions = np.zeros(number_of_servers, dtype=int)
             for i in range(number_of_servers):
                 actions[i] = agents[i].choose_action(local_observations[i],public_queues[i])
-                
             observations,rewards,done,info = env.step(actions)
             local_observations_,public_queues_ =observations
             bookkeeper.store_step(info)
 
-            for i in range(number_of_servers):
-                    agents[i].store_transitions(state = local_observations[i],
-                                                lstm_state=public_queues[i],
-                                                action = actions[i],
-                                                reward= rewards[i],
-                                                new_state=local_observations_[i],
-                                                new_lstm_state=public_queues_[i],
-                                                done=done)
-                    agents[i].learn()
+            # for i in range(number_of_servers):
+            #         agents[i].store_transitions(state = local_observations[i],
+            #                                     lstm_state=public_queues[i],
+            #                                     action = actions[i],
+            #                                     reward= rewards[i],
+            #                                     new_state=local_observations_[i],
+            #                                     new_lstm_state=public_queues_[i],
+            #                                     done=done)
+                    # agents[i].learn()
                     
             local_observations,public_queues  = local_observations_,public_queues_
         for agent in agents:
             agent.reset_lstm_history()
 
                     
-        bookkeeper.store_episode(epsilon=agents[0].get_epsilon())   
+        bookkeeper.store_episode(epsilon=agents[0].get_epsilon(),actions=env.get_episode_actions())   
         
     bookkeeper.plot_metrics()
                                 

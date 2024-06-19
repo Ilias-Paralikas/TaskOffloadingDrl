@@ -24,7 +24,7 @@ def main():
         # file to get the hyperparameters from
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=8, help='Number of servers in the system')
+        parser.add_argument('--number_of_servers', type=int, default=5, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
@@ -37,7 +37,7 @@ def main():
         
         parser.add_argument('--static_frequency', type=int, default=0, help='Number of servers in the system')
         
-        parser.add_argument('--cloud_computational_capacity', type=float, default=20, help='Number of servers in the system')
+        parser.add_argument('--cloud_computational_capacity', type=float, default=10000, help='Number of servers in the system')
         
         parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
@@ -76,7 +76,7 @@ def main():
         parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Number of servers in the system')
         parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Number of servers in the system')
+        parser.add_argument('--cloud_capacities_min', type=float, default=1, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_max', type=float, default=20, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
@@ -99,7 +99,7 @@ def main():
         parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
         parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')
         parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
-        parser.add_argument('--memory_size', type=int, default=1e6, help='Integer')
+        parser.add_argument('--memory_size', type=int, default=int(1e6), help='Integer')
         parser.add_argument('--batch_size', type=int, default=64, help='Float')
         parser.add_argument('--replace_target_iter', type=int, default=2000, help='Float')
         args = parser.parse_args()
@@ -190,7 +190,7 @@ def main():
                 "loss_function":args.loss_function,
                 "save_model_frequency":args.save_model_frequency,
                 "update_weight_percentage":args.update_weight_percentage,
-                "memory_size":args.memory_size,
+                "memory_size":int(args.memory_size),
                 "batch_size":args.batch_size  ,
                 "replace_target_iter":args.replace_target_iter
         }
