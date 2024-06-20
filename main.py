@@ -10,9 +10,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--log_folder', type=str, default='log_folder', help='Path to the log folder')
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
-    parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
+    parser.add_argument('--resume_run', type=str, default='run_0', help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=100, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=10, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,
@@ -117,8 +117,8 @@ def main():
                     decision_makers[i].learn()
                     
             local_observations,public_queues  = local_observations_,public_queues_
-        for agent in decision_makers:
-            agent.reset_lstm_history()
+        for decision_maker in decision_makers:
+            decision_maker.reset_lstm_history()
 
                     
         bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   

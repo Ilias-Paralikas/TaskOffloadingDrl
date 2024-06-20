@@ -66,7 +66,7 @@ class DeepQNetwork(nn.Module):
         else:
             q_values = self.output_layer(sequential_output)
             
-        q_values = nn.Sigmoid()(q_values)
+        q_values = nn.Softmax()(q_values)
         return q_values
     
 
