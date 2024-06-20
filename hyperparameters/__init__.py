@@ -99,7 +99,7 @@ def main():
         parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
         parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')
         parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
-        parser.add_argument('--memory_size', type=int, default=int(1e6), help='Integer')
+        parser.add_argument('--memory_size', type=int, default=int(1e4), help='Integer')
         parser.add_argument('--batch_size', type=int, default=16, help='Float')
         parser.add_argument('--replace_target_iter', type=int, default=2000, help='Float')
         args = parser.parse_args()

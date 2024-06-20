@@ -173,7 +173,8 @@ class Agent(DescisionMakerBase):
 
                 observation = torch.tensor(observation_np,dtype=torch.float32).to(self.device)
                 lstm_input = torch.tensor(lstm_history_np,dtype=torch.float32).to(self.device)
-                action = np.argmax(self.Q_eval_network(observation, lstm_input).detach().cpu().numpy())
+                outputs  = self.Q_eval_network(observation, lstm_input).detach().cpu().numpy()
+                action = np.argmax(outputs)
             else:
                 action = np.random.choice(self.number_of_actions)
         return action
