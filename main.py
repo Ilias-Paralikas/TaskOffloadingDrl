@@ -50,22 +50,22 @@ def main():
     )
     task_features = env.get_task_features()
     checkpoint_folder = bookkeeper.get_checkpoint_folder()
-    descision_makers = []
+    decision_makers = []
     
-    descision_makers_choice ={
+    decision_makers_choice ={
         'drl': Agent,
         'all_horizontal': AllHorizontal,
         'all_local': AllLocal,
         'all_vertical': AllVertical
     }
-    chosen_descision_maker = descision_makers_choice[hyperparameters['decision_makers']]
-    descision_makers = []
+    chosen_descision_maker = decision_makers_choice[hyperparameters['decision_makers']]
+    decision_makers = []
     
     for i in range(number_of_servers):
         server_features,foreign_queues,number_of_actions = env.get_server_dimensions(i)
         state_dimensions = task_features + server_features
         lstm_shape = foreign_queues
-        descision_maker = chosen_descision_maker(id=i,
+        decision_maker = chosen_descision_maker(id=i,
                         state_dimensions=state_dimensions,
                         lstm_shape=lstm_shape,
                         number_of_actions=number_of_actions,
@@ -88,7 +88,7 @@ def main():
                         batch_size= hyperparameters['batch_size'],
                         replace_target_iter=hyperparameters['replace_target_iter'],
                         device=device)
-        descision_makers.append(descision_maker)
+        decision_makers.append(descision_maker)
         
     for key in hyperparameters:
         if key != 'connection_matrix':
@@ -99,23 +99,23 @@ def main():
         while not done:
             actions = np.zeros(number_of_servers, dtype=int)
             for i in range(number_of_servers):
-                actions[i] = descision_makers[i].choose_action(local_observations[i],public_queues[i])
+                actions[i] = decision_makers[i].choose_action(local_observations[i],public_queues[i])
             observations,rewards,done,info = env.step(actions)
             local_observations_,public_queues_ =observations
             bookkeeper.store_step(info)
 
             for i in range(number_of_servers):
-                    descision_makers[i].store_transitions(state = local_observations[i],
+                    decision_makers[i].store_transitions(state = local_observations[i],
                                                 lstm_state=public_queues[i],
                                                 action = actions[i],
                                                 reward= rewards[i],
                                                 new_state=local_observations_[i],
                                                 new_lstm_state=public_queues_[i],
                                                 done=done)
-                    descision_makers[i].learn()
+                    decision_makers[i].learn()
                     
             local_observations,public_queues  = local_observations_,public_queues_
-        for agent in descision_makers:
+        for agent in decision_makers:
             agent.reset_lstm_history()
 
                     
