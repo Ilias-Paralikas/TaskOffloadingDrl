@@ -19,3 +19,10 @@ class AllHorizontal(DescisionMakerBase):
 
     def choose_action(self, *args, **kwargs):
         return np.random.randint(1,self.number_of_actions - 1)
+    
+class Random(DescisionMakerBase):
+    def __init__(self, number_of_actions,*args, **kwargs):
+        self.number_of_actions =number_of_actions
+    def choose_action(self, *args, **kwargs):
+        return np.random.randint(0,self.number_of_actions )
+    

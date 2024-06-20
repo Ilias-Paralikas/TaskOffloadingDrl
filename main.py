@@ -1,5 +1,5 @@
 from environment import Environment
-from decision_makers import Agent, AllHorizontal, AllLocal, AllVertical
+from decision_makers import Agent, AllHorizontal, AllLocal, AllVertical,Random
 from bookkeeping import BookKeeper
 import numpy as np
 import argparse
@@ -56,7 +56,8 @@ def main():
         'drl': Agent,
         'all_horizontal': AllHorizontal,
         'all_local': AllLocal,
-        'all_vertical': AllVertical
+        'all_vertical': AllVertical,
+        'random': Random
     }
     chosen_descision_maker = decision_makers_choice[hyperparameters['decision_makers']]
     decision_makers = []
