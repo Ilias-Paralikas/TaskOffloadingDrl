@@ -117,10 +117,11 @@ def main():
                                                 new_state=local_observations_[i],
                                                 new_lstm_state=public_queues_[i],
                                                 done=done)
-                    decision_makers[i].learn()
                     
             local_observations,public_queues  = local_observations_,public_queues_
+        
         for decision_maker in decision_makers:
+            decision_maker.learn() 
             decision_maker.reset_lstm_history()
 
                     
