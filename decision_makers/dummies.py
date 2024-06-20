@@ -1,8 +1,7 @@
 from .decision_maker_base import DescisionMakerBase
 import numpy as np
 class AllLocal(DescisionMakerBase):
-
-    def choose_action(self):
+    def choose_action(self,*args, **kwargs):
         return 0
     
 class AllVertical(DescisionMakerBase):
@@ -11,6 +10,8 @@ class AllVertical(DescisionMakerBase):
 
     def choose_action(self,*args, **kwargs):
         return self.number_of_actions - 1
+    
+    
 class AllHorizontal(DescisionMakerBase):
     def __init__(self, number_of_actions,*args, **kwargs):
         super().__init__()
