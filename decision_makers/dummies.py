@@ -26,3 +26,13 @@ class Random(DescisionMakerBase):
     def choose_action(self, *args, **kwargs):
         return np.random.randint(0,self.number_of_actions )
     
+    
+class SingleAgent(DescisionMakerBase):
+ 
+    def choose_action(self,local_observations *args, **kwargs):
+        private_waiting_time=  local_observations[-1]
+        public_waiting_time = local_observations[-2]
+        if private_waiting_time > public_waiting_time:
+            return 1
+        
+        return 0
