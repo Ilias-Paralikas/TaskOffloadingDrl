@@ -85,7 +85,7 @@ def main():
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
         
-        
+        parser.add_argument('--decision_makers', type=str, default='drl', help='Number of servers in the system')
         parser.add_argument('--hidden_layers', type=str, default='1024,1024,1024', help='comma-separated integers')
         parser.add_argument('--lstm_layers', type=int, default=20, help='Integer')
         parser.add_argument('--lstm_time_step', type=int, default=10, help='Integer')
@@ -177,6 +177,7 @@ def main():
                 "drop_penalty_maxs":drop_penalty_maxs,
                 "drop_penalty_distributions":drop_penalty_distributions,
                 "connection_matrix" :connection_matrix,
+                "decision_makers":args.decision_makers,
                 "hidden_layers":hidden_layers,
                 "lstm_layers":args.lstm_layers,
                 "lstm_time_step":args.lstm_time_step,
