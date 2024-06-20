@@ -1,5 +1,5 @@
 from environment import Environment
-from decision_makers import Agent, AllHorizontal, AllLocal, AllVertical,Random
+from decision_makers import Agent, AllHorizontal, AllLocal, AllVertical,Random,SingleAgent
 from bookkeeping import BookKeeper
 import numpy as np
 import argparse
@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--log_folder', type=str, default='log_folder', help='Path to the log folder')
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
-    parser.add_argument('--resume_run', type=str, default='bad', help='Name of the run to resume')
+    parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
     parser.add_argument('--epochs', type=int, default=1, help='Device to use')
     args  = parser.parse_args()
@@ -57,7 +57,8 @@ def main():
         'all_horizontal': AllHorizontal,
         'all_local': AllLocal,
         'all_vertical': AllVertical,
-        'random': Random
+        'random': Random,
+        "single":SingleAgent
     }
     chosen_descision_maker = decision_makers_choice[hyperparameters['decision_makers']]
 
