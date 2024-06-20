@@ -88,7 +88,7 @@ def main():
                         batch_size= hyperparameters['batch_size'],
                         replace_target_iter=hyperparameters['replace_target_iter'],
                         device=device)
-        decision_makers.append(descision_maker)
+        decision_makers.append(decision_maker)
         
     for key in hyperparameters:
         if key != 'connection_matrix':
@@ -119,7 +119,7 @@ def main():
             agent.reset_lstm_history()
 
                     
-        bookkeeper.store_episode(epsilon=descision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
+        bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
         
     bookkeeper.plot_metrics()
                                 
