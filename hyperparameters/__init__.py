@@ -26,7 +26,7 @@ def main():
         
         parser.add_argument('--number_of_servers', type=int, default=10, help='Number of servers in the system')
 
-        parser.add_argument('--default_private_cpu_capacity', type=float, default=2.5, help='Number of servers in the system')
+        parser.add_argument('--default_private_cpu_capacity', type=float, default=5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_public_cpu_capacity', type=float, default=5, help='Number of servers in the system')
@@ -77,7 +77,7 @@ def main():
         parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
         parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Number of servers in the system')
-        parser.add_argument('--cloud_capacities_max', type=float, default=20, help='Number of servers in the system')
+        parser.add_argument('--cloud_capacities_max', type=float, default=30, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
         parser.add_argument('--skip_connections', type=int, default=3, help='Number of servers in the system')
@@ -91,7 +91,7 @@ def main():
         parser.add_argument('--lstm_time_step', type=int, default=10, help='Integer')
         parser.add_argument('--dropout_rate', type=float, default=0.5, help='Float')
         parser.add_argument('--dueling', type=bool, default=True, help='Boolean')
-        parser.add_argument('--epsilon_decrement', type=float, default=1e-3, help='Float')
+        parser.add_argument('--epsilon_decrement', type=float, default=100, help='Float')
         parser.add_argument('--epsilon_end', type=float, default=0.01, help='Float')
         parser.add_argument('--gamma', type=float, default=0.99, help='Float')
         parser.add_argument('--learning_rate', type=float, default=1e-4, help='Float')
@@ -100,8 +100,8 @@ def main():
         parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')
         parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
         parser.add_argument('--memory_size', type=int, default=int(5e4), help='Integer')
-        parser.add_argument('--batch_size', type=int, default=16, help='Float')
-        parser.add_argument('--replace_target_iter', type=int, default=2000, help='Float')
+        parser.add_argument('--batch_size', type=int, default=32, help='Float')
+        parser.add_argument('--replace_target_iter', type=int, default=3000, help='Float')
         args = parser.parse_args()
         
         
