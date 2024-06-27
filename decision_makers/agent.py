@@ -269,8 +269,5 @@ class Agent(DescisionMakerBase):
             self.store_model()
             
         self.scheduler.step()
-        # Assuming self.optimizer is your optimizer
-        current_lr = self.optimizer.param_groups[0]['lr']
-        print("Current Learning Rate:", current_lr)
     def get_epsilon(self):
         return self.epsilon
