@@ -40,7 +40,7 @@ def get_last_averages(log_folder, key, n):
 def main():
 
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
-    parser.add_argument('--folder', type=str, default='meta_plots/logs/set_2/task_arrive_eas', help='path to the folder containing the logs')
+    parser.add_argument('--folder', type=str, default='meta_plots/logs/set_2/difficulties', help='path to the folder containing the logs')
     parser.add_argument('--plot_value', type=str, default ='rewards_history',help='name of the metric you want to plot. Note it must match the name in the metrics.pkl file')
     parser.add_argument('--average_window', type=int, default=500)
     args = parser.parse_args()  

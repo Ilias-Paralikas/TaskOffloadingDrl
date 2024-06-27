@@ -135,7 +135,7 @@ class Agent(DescisionMakerBase):
         self.loss_function = loss_function()
         self.optimizer = optimizer(self.Q_eval_network.parameters(),lr=learning_rate)
        
-        schedueler_fun = Linear(start=1e-6,end=1e-7,number_of_epochs=10)
+        schedueler_fun = Linear(start=learning_rate,end=1e-7,number_of_epochs=14)
         self.scheduler = LambdaLR(self.optimizer, lr_lambda=schedueler_fun)
         self.memory_counter= 0
         self.learn_step_counter = 0
