@@ -11,8 +11,5 @@ class Linear:
         self.step = (1-self.lr_multpilier_end)/number_of_epochs
         
     def __call__(self,epochs):
-        print(self.lr_multiplier)
-        print(self.step)
-        print(self.lr_multpilier_end)
         self.lr_multiplier = max(self.lr_multiplier - self.step, self.lr_multpilier_end)
         return self.lr_multiplier
