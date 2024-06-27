@@ -7,8 +7,10 @@ import numpy as np
 from collections import deque
 import os 
 from .decision_maker_base import DescisionMakerBase
+from .lr_scheduelers.lr_schedueler_base import Linear
 
 
+from torch.optim.lr_scheduler import LambdaLR
 
 class DeepQNetwork(nn.Module):
     def __init__(self,
@@ -132,7 +134,9 @@ class Agent(DescisionMakerBase):
         self.Q_target_network  = copy.deepcopy(self.Q_eval_network).to(device)
         self.loss_function = loss_function()
         self.optimizer = optimizer(self.Q_eval_network.parameters(),lr=learning_rate)
-            
+       
+        schedueler_fun = Linear(start=1e-6,end=1e-7,number_of_epochs=10)
+        self.scheduler = LambdaLR(self.optimizer, lr_lambda=schedueler_fun)
         self.memory_counter= 0
         self.learn_step_counter = 0
         self.replace_target_iter=  replace_target_iter
@@ -264,5 +268,9 @@ class Agent(DescisionMakerBase):
         if self.learn_step_counter % self.save_model_frequency == 0 :
             self.store_model()
             
+        self.scheduler.step()
+        # Assuming self.optimizer is your optimizer
+        current_lr = self.optimizer.param_groups[0]['lr']
+        print("Current Learning Rate:", current_lr)
     def get_epsilon(self):
         return self.epsilon

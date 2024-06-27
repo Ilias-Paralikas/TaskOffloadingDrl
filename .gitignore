@@ -2,3 +2,4 @@
 __pycache__/
 hyperparameters/hyperparameters.json
 log_folder/
+meta_plots/logs/
