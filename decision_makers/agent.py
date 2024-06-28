@@ -4,10 +4,14 @@ import torch.nn as nn
 import torch.nn.functional as f
 import numpy as np 
 
+import pickle
 from collections import deque
 import os 
 from .decision_maker_base import DescisionMakerBase
-from .lr_scheduelers.lr_schedueler_base import Linear
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lr_schedulers import Linear
 
 
 from torch.optim.lr_scheduler import LambdaLR
@@ -88,6 +92,7 @@ class Agent(DescisionMakerBase):
                     epsilon_end,
                     gamma,
                     learning_rate,
+                    scheduler_file,
                     loss_function,
                     optimizer,
                     checkpoint_folder,
@@ -134,9 +139,11 @@ class Agent(DescisionMakerBase):
         self.Q_target_network  = copy.deepcopy(self.Q_eval_network).to(device)
         self.loss_function = loss_function()
         self.optimizer = optimizer(self.Q_eval_network.parameters(),lr=learning_rate)
-       
-        schedueler_fun = Linear(start=7e-7,end=1e-7,number_of_epochs=2000)
-        self.scheduler = LambdaLR(self.optimizer, lr_lambda=schedueler_fun)
+        
+        self.scheduler_file= scheduler_file
+        with open(self.scheduler_file, 'rb') as f:
+            self.schedueler_fun = pickle.load(f)
+        self.scheduler = LambdaLR(self.optimizer, lr_lambda=self.schedueler_fun)
         self.memory_counter= 0
         self.learn_step_counter = 0
         self.replace_target_iter=  replace_target_iter
@@ -264,9 +271,18 @@ class Agent(DescisionMakerBase):
         # x = self.Q_eval_network(state_batch, lstm_sequence_batch).gather(1, action_batch.unsqueeze(1)).squeeze(1)
         # print("New Loss :",self.loss_function(x,q_target).item())
         self.epsilon = max(self.epsilon - self.epsilon_decrement, self.epsilon_end)
+        
+    
+        
+        with open(self.scheduler_file, 'wb') as f:
+            pickle.dump(self.schedueler_fun, f)
 
         if self.learn_step_counter % self.save_model_frequency == 0 :
             self.store_model()
+            
+            
+        
+        
             
         self.scheduler.step()
     def get_epsilon(self):

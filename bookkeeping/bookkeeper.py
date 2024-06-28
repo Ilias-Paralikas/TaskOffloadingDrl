@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import sum_dicts_in_positions
 from topology_generators import plot_matrix
+from lr_schedulers import *
 class BookKeeper:
     def __init__(self,
                  log_folder='log_folder',
@@ -18,6 +19,7 @@ class BookKeeper:
         self.log_folder = log_folder
         self.average_window = average_window
         os.makedirs(log_folder, exist_ok=True)
+
         if resume_run :
             self.run_folder = os.path.join(log_folder,resume_run)
             self.hyperparameters_file = os.path.join(self.run_folder,'hyperparameters.json')
@@ -49,15 +51,19 @@ class BookKeeper:
 
             plot_matrix(connection_matrix,topology_target_file)
             
+            
         
         
                 
         self.checkpoint_folder = self.run_folder+'/checkpoints'
         self.metrics_folder = self.run_folder+'/metrics.pkl'
         
+        self.scheduler_file = self.run_folder+'/scheduler.pkl'
+
         if resume_run:
             with open(self.metrics_folder, 'rb') as f:
                 self.metrics = pickle.load(f)
+                
         else:
                         
             self.metrics ={}
@@ -65,9 +71,23 @@ class BookKeeper:
             self.metrics['rewards_history'] =[]
             self.metrics['actions_history'] = []
 
-                
+
             with open(self.metrics_folder, 'wb') as f:
                 pickle.dump(self.metrics, f)
+
+            scheduler_choices ={
+                'constant': constant,
+                'Linear': Linear(start=hyperparameters['learning_rate'],
+                                end=hyperparameters['learning_rate_end'],
+                                    number_of_epochs=hyperparameters['lr_scheduler_epochs'])
+                }
+            
+            scheduler =scheduler_choices[hyperparameters['scheduler_choice']]
+            
+            
+            with open(self.scheduler_file, 'wb') as f:
+                pickle.dump(scheduler, f)
+                
                 
 
         self.rewards = []
@@ -75,12 +95,18 @@ class BookKeeper:
         os.makedirs(self.checkpoint_folder,exist_ok=True)
         
         
+       
+
+        
         
     def get_epsilon(self):
         return self.metrics['epsilon_history'][-1]
 
     def get_checkpoint_folder(self):
         return self.checkpoint_folder
+    
+    def get_scheduler_file(self):  
+        return self.scheduler_file
     
     def get_hyperparameters(self):
         with open(self.hyperparameters_file) as f:

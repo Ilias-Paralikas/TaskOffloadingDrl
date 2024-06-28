@@ -24,7 +24,7 @@ def main():
         # file to get the hyperparameters from
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=1, help='Number of servers in the system')
+        parser.add_argument('--number_of_servers', type=int, default=20, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
@@ -39,7 +39,7 @@ def main():
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Number of servers in the system')
         
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.9, help='Number of servers in the system')
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
@@ -94,7 +94,10 @@ def main():
         parser.add_argument('--epsilon_decrement', type=float, default=100, help='Float')
         parser.add_argument('--epsilon_end', type=float, default=0.01, help='Float')
         parser.add_argument('--gamma', type=float, default=0.99, help='Float')
-        parser.add_argument('--learning_rate', type=float, default=1e-4, help='Float')
+        parser.add_argument('--learning_rate', type=float, default=1e-6, help='Float')
+        parser.add_argument('--learning_rate_end', type=float, default=1e-7, help='Float')
+        parser.add_argument('--scheduler_choice', type=str, default='constant', help='selected from https://pytorch.org/docs/stable/optim.html#algorithms, provided as a string')
+        parser.add_argument('--lr_scheduler_epochs', type=int, default=2000, help='Integer')
         parser.add_argument('--optimizer', type=str, default='Adam', help='selected from https://pytorch.org/docs/stable/optim.html#algorithms, provided as a string')
         parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
         parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')
@@ -187,6 +190,9 @@ def main():
                 "epsilon_end":args.epsilon_end,
                 "gamma":args.gamma,
                 "learning_rate":args.learning_rate,
+                "learning_rate_end":args.learning_rate_end,
+                "scheduler_choice":args.scheduler_choice,
+                "lr_scheduler_epochs":args.lr_scheduler_epochs,
                 "optimizer":args.optimizer,
                 "loss_function":args.loss_function,
                 "save_model_frequency":args.save_model_frequency,

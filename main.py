@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=15, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=50, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,
@@ -66,6 +66,8 @@ def main():
 
     decision_makers = []
     
+    
+    scheduler_file = bookkeeper.get_scheduler_file()
     for i in range(number_of_servers):
         server_features,foreign_queues,number_of_actions = env.get_server_dimensions(i)
         state_dimensions = task_features + server_features
@@ -83,7 +85,8 @@ def main():
                         epsilon_decrement=hyperparameters['epsilon_decrement'],
                         epsilon_end=hyperparameters['epsilon_end'],
                         gamma=hyperparameters['gamma'],
-                        learning_rate=hyperparameters['learning_rate'],
+                        learning_rate = hyperparameters['learning_rate'],
+                        scheduler_file = scheduler_file,
                         loss_function = getattr(torch.nn, hyperparameters['loss_function']),
                         optimizer = getattr(torch.optim, hyperparameters['optimizer']),
                         checkpoint_folder=checkpoint_folder,
@@ -124,9 +127,8 @@ def main():
             decision_maker.learn() 
             decision_maker.reset_lstm_history()
 
-                    
         bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
-        
+                
     bookkeeper.plot_metrics()
                                 
                     
