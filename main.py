@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=500, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=50, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=15, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,

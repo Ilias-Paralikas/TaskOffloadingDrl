@@ -5,7 +5,7 @@ from .matchmaker import Matchmaker
 from utils import merge_dicts,dict_to_array,remove_diagonal_and_reshape
 import numpy as np
 import torch
-
+import math
 class Environment():
     def __init__(self, 
                  static_frequency,
@@ -155,6 +155,9 @@ class Environment():
                 self.actions[server_id]['horisontal'] +=1
     def step(self,actions):
 
+
+        tasks_arrived = [0 if t is None else 1 for t in self.tasks]
+        
         assert len(actions) == self.number_of_servers
         if self.current_time >=self.episode_time_end:
             done = True
@@ -188,8 +191,12 @@ class Environment():
         rewards = self.scale_rewards(rewards)
         rewards = -rewards
         
+        # tasks_dropped = 
+        
         info  ={}
         info['rewards'] = rewards
+        info['tasks_arrived'] = np.array(tasks_arrived)
+        info['tasks_dropped'] = -np.ceil(rewards)
         
         return observations,rewards, done, info
         
