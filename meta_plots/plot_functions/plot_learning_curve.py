@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 import pandas as pd
+import argparse
 
 
 def load_all_metrics(log_folder):
