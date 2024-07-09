@@ -2,16 +2,23 @@ import os
 import torch
 import numpy as np
 class ChampionshipManager():
-    def __init__(self,descision_maker, agents,windows,run_folder):
+    def __init__(self,descision_maker, agents,windows,run_folder,championship_start):
         self.descision_maker= descision_maker
         if descision_maker =='drl':
             networks = [a.Q_eval_network for a in agents]
             self.groups = self.find_groups(networks)
             self.run_folder  =run_folder
+            self.championship_start = championship_start
         
             self.championship_folder=  f'{run_folder}/championship'
             os.makedirs(self.championship_folder, exist_ok=True)
-
+            self.counter_file = os.path.join(self.championship_folder,'counter.txt')
+            if not os.path.exists(self.counter_file):
+                with open(self.counter_file, 'w') as file:
+                    file.write(str(0))
+            else:
+                with open(self.counter_file, 'r') as file:
+                    self.counter = int(file.read().strip())
 
             self.windows = [(f,os.path.join(self.championship_folder,f'window_{f}')) for f in windows]
             for _,f in self.windows:
@@ -64,32 +71,37 @@ class ChampionshipManager():
     def step(self,rewards,agents):
         if self.descision_maker != 'drl':   
             return
+        
+                                     
+        self.counter +=1
+        with open(self.counter_file, 'w') as file:
+            file.write(str(self.counter))
+        if self.counter < self.championship_start :
+            return
         stacked_arrays = np.vstack(rewards)
         transposed_arrays = stacked_arrays.T
         for window,f_folder in self.windows:
-            group_folders = os.listdir(f_folder)
-            for i,g_folder in enumerate(group_folders):
-                g_folder_path = os.path.join(f_folder,g_folder)
-                score_file  = os.path.join(g_folder_path,'score.txt')
-                with open(score_file, 'r') as file:
-                    high_score = file.read().strip()
-                    high_score = float(high_score)
-                    best = -1
-                
-                for agents_in_group in self.groups[i]:
-                    score  = np.mean(transposed_arrays[agents_in_group][-window:])
-                    if score>high_score:
-                        high_score = score
-                        best = agents_in_group
-                    high_score = max(high_score,score)
+            if len(transposed_arrays[0])>window:
+                group_folders = os.listdir(f_folder)
+                for i,g_folder in enumerate(group_folders):
+                    g_folder_path = os.path.join(f_folder,g_folder)
+                    score_file  = os.path.join(g_folder_path,'score.txt')
+                    with open(score_file, 'r') as file:
+                        high_score = file.read().strip()
+                        high_score = float(high_score)
+                        best = -1
                     
-                if best != -1:
-                    with open(score_file, 'w') as file:
-                        file.write(str(high_score))
-                        torch.save(agents[best].Q_eval_network,os.path.join(g_folder_path,'best_model.pth'))
-
-                                    
-                
-
+                    for agents_in_group in self.groups[i]:
+                        score  = np.mean(transposed_arrays[agents_in_group][-window:])
+                        if score>high_score:
+                            high_score = score
+                            best = agents_in_group
+                        high_score = max(high_score,score)
+                        
+                    if best != -1:
+                        with open(score_file, 'w') as file:
+                            file.write(str(high_score))
+                            torch.save(agents[best].Q_eval_network,os.path.join(g_folder_path,'best_model.pth'))
+       
                         
     

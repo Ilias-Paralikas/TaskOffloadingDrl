@@ -123,7 +123,8 @@ def main():
     manager = ChampionshipManager(hyperparameters['decision_makers'],
                                   decision_makers,
                                   hyperparameters['championship_windows'],
-                                  run_folder)
+                                  run_folder,
+                                  hyperparameters['championship_start'])
     
     for i,d in enumerate(decision_makers):
         print(f'agent {i} has {d.number_of_actions} actions and {d.state_dimensions} state dimensions')
