@@ -16,9 +16,9 @@ class ChampionshipManager():
             if not os.path.exists(self.counter_file):
                 with open(self.counter_file, 'w') as file:
                     file.write(str(0))
-            else:
-                with open(self.counter_file, 'r') as file:
-                    self.counter = int(file.read().strip())
+        
+            with open(self.counter_file, 'r') as file:
+                self.counter = int(file.read().strip())
 
             self.windows = [(f,os.path.join(self.championship_folder,f'window_{f}')) for f in windows]
             for _,f in self.windows:
