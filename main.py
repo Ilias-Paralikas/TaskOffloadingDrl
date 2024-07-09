@@ -158,16 +158,17 @@ def main():
                                                     done=done)
                         
             local_observations,public_queues  = local_observations_,public_queues_
+     
+        bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
         
+           
         if not args.validate:
             for decision_maker in decision_makers:
                 decision_maker.learn() 
                 decision_maker.reset_lstm_history()
 
-        bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
-        
-        rewards_history  = bookkeeper.get_rewards_history()
-        manager.step(rewards_history,decision_makers)
+            rewards_history  = bookkeeper.get_rewards_history()
+            manager.step(rewards_history,decision_makers)
  
     bookkeeper.plot_metrics()
                                 
