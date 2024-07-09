@@ -80,7 +80,7 @@ def main():
     # Adding legend and labels
     mapped_values = [specifications['label_mapping'][key] for key in dict_keys if key in specifications['label_mapping']]
     ax.legend(mapped_values, title=specifications['legend_title'])
-    ax.set_ylabel('Values')
+    ax.set_ylabel('Actions')
     ax.set_title(specifications['title'])
 
     plt.savefig(os.path.join(args.folder, 'actions_comparison.png'), dpi=500)

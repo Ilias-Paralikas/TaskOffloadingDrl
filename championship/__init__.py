@@ -1,0 +1,1 @@
+from .championship_manager import ChampionshipManager

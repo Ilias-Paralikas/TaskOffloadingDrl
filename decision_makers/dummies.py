@@ -36,3 +36,13 @@ class SingleAgent(DescisionMakerBase):
             return 1
 
         return 0
+    
+    
+class RoundRobin(DescisionMakerBase):
+    def __init__(self, number_of_actions,*args, **kwargs):
+        self.number_of_actions =number_of_actions
+        self.last_action = 0
+
+    def choose_action(self, *args, **kwargs):
+        self.last_action = (self.last_action + 1) % self.number_of_actions
+        return self.last_action

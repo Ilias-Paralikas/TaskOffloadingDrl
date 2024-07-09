@@ -96,7 +96,7 @@ class BookKeeper:
         self.tasks_arrived =[]
 
         os.makedirs(self.checkpoint_folder,exist_ok=True)
-        
+
         
        
 
@@ -182,11 +182,8 @@ class BookKeeper:
             print(f"No agent_actions found for key '{key}'")
             return
       
-
         list_of_arrays = self.metrics[key]
-
         stacked_arrays = np.vstack(list_of_arrays)
-
         transposed_arrays = stacked_arrays.T
 
         # Create a new figure
@@ -255,3 +252,9 @@ class BookKeeper:
         self.plot_actions()
 
         
+        
+    def get_run_folder(self):
+        return self.run_folder
+    
+    def get_rewards_history(self):
+        return self.metrics['rewards_history']

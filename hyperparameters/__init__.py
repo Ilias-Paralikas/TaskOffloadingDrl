@@ -105,6 +105,8 @@ def main():
         parser.add_argument('--memory_size', type=int, default=10000, help='Integer')
         parser.add_argument('--batch_size', type=int, default=32, help='Float')
         parser.add_argument('--replace_target_iter', type=int, default=3000, help='Float')
+        
+        parser.add_argument('--championship_windows', type=str, default=None, help='comma-separated integers')
         args = parser.parse_args()
         
         
@@ -199,7 +201,8 @@ def main():
                 "update_weight_percentage":args.update_weight_percentage,
                 "memory_size":int(args.memory_size),
                 "batch_size":args.batch_size  ,
-                "replace_target_iter":args.replace_target_iter
+                "replace_target_iter":args.replace_target_iter,
+                "championship_windows":comma_seperated_string_to_list(args.championship_windows,int)
         }
         
         json_object = json.dumps(hyperparameters,indent=4) ### this saves the array in .json format)

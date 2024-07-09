@@ -211,3 +211,17 @@ class Environment():
     
     def get_episode_actions(self):
         return self.actions
+    
+    def get_foreign_cpus(self,id):
+        available_servers = np.array(self.matchmakers[id].get_rows())
+        available_servers = available_servers[available_servers!=id]
+        available_servers = available_servers[available_servers!=self.number_of_servers]
+        public_cpus = np.array([s.public_queues_computational_capacity for s in self.servers])
+        
+        available_public_cpus = public_cpus[available_servers]
+        
+        available_public_cpus = np.append(available_public_cpus, self.cloud.computational_capacity)
+        return available_public_cpus
+        
+        
+        

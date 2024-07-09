@@ -40,7 +40,7 @@ def get_last_averages(log_folder, key, n):
 def main():
 
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
-    parser.add_argument('--folder', type=str, default='meta_plots/logs/set_2/difficulties', help='path to the folder containing the logs')
+    parser.add_argument('--folder', type=str, default='meta_plots/logs/set_2/cpu', help='path to the folder containing the logs')
     parser.add_argument('--plot_value', type=str, default ='rewards_history',help='name of the metric you want to plot. Note it must match the name in the metrics.pkl file')
     parser.add_argument('--average_window', type=int, default=500)
     args = parser.parse_args()  
@@ -50,10 +50,12 @@ def main():
     plot_value = args.plot_value  
     all_averages = get_last_averages(run_folder, plot_value, average_window)
 
+
     specifications_file = os.path.join(args.folder, 'specifications.json')
     with open(specifications_file, 'r') as f:
     # Load the JSON data from the file
         specifications = json.load(f)
+        
         
     x_values = specifications['x_values']
     label_mapping = specifications['label_mapping']
@@ -71,10 +73,13 @@ def main():
     plt.rcParams['font.size'] = 17
     plt.figure(figsize=(8, 8))
 
-    # Plot the averages for each subfolder
-    for subfolder, averages in all_averages.items():
-        plt.plot(x_values, averages, label=label_mapping.get(subfolder, subfolder))
+    markers = ['o', 's', '^', 'D', '*', 'p', 'x', '+', 'v', '<', '>', '1', '2', '3', '4', 'h', 'H', '|', '_']
 
+    # Plot the averages for each subfolder
+    for (subfolder, averages), marker in zip(all_averages.items(), markers):
+        plt.plot(x_values, averages, label=label_mapping.get(subfolder, subfolder), marker=marker)
+
+    # plt.title('Baselines')  # 
 
     # plt.title('Baselines')  # Replace with your actual title
 
@@ -82,7 +87,7 @@ def main():
     plt.xlabel(x_label,fontsize=25)  # Replace with your actual x axis name
     plt.ylabel(y_label,fontsize=25)
     # Add a legend
-    plt.legend()
+    plt.legend( title=specifications['legend_title'])
 
     # Show the plot
     plt.savefig(os.path.join(args.folder, plot_value+'.png'),bbox_inches='tight',dpi=500)
