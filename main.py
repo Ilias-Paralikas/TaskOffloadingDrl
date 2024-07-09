@@ -5,6 +5,7 @@ from championship import ChampionshipManager
 import numpy as np
 import argparse
 import torch
+import os
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     parser = argparse.ArgumentParser()
@@ -12,8 +13,9 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=100, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=100, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=2, help='Device to use')
     parser.add_argument('--validate', type=bool, default=False, help='Device to use')
+    parser.add_argument('--championship_window_folder', type=str, default=None, help='Device to use')
     args  = parser.parse_args()
     
     bookkeeper = BookKeeper(log_folder=args.log_folder,
@@ -97,7 +99,7 @@ def main():
                 'scheduler_file': scheduler_file,
                 'loss_function': getattr(torch.nn, hyperparameters['loss_function']),
                 'optimizer': getattr(torch.optim, hyperparameters['optimizer']),
-                'checkpoint_folder': checkpoint_folder,
+                'checkpoint_folder': checkpoint_folder+ '/agent_'+str(i)+'.pth',
                 'save_model_frequency': hyperparameters['save_model_frequency'],
                 'update_weight_percentage': hyperparameters['update_weight_percentage'],
                 'memory_size': hyperparameters['memory_size'],
@@ -124,10 +126,12 @@ def main():
                                   decision_makers,
                                   hyperparameters['championship_windows'],
                                   run_folder,
-                                  hyperparameters['championship_start'])
+                                  hyperparameters['championship_start'],
+                                  device)
     
-    for i,d in enumerate(decision_makers):
-        print(f'agent {i} has {d.number_of_actions} actions and {d.state_dimensions} state dimensions')
+    if args.championship_window_folder is not None:
+        championship_window_folder = os.path.join(run_folder,args.championship_window_folder)
+        manager.load_weights(championship_window_folder,decision_makers)
         
     for key in hyperparameters:
         if key != 'connection_matrix':
@@ -164,7 +168,7 @@ def main():
         
         rewards_history  = bookkeeper.get_rewards_history()
         manager.step(rewards_history,decision_makers)
-        
+ 
     bookkeeper.plot_metrics()
                                 
                     

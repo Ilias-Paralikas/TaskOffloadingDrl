@@ -122,7 +122,7 @@ class Agent(DescisionMakerBase):
         self.gamma = gamma
         self.learning_rate = learning_rate
     
-        self.checkpoint_folder = checkpoint_folder + '/agent_'+str(id)+'.pth'
+        self.checkpoint_folder = checkpoint_folder 
         self.save_model_frequency =save_model_frequency
         self.update_weight_percentage = update_weight_percentage
         

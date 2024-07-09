@@ -2,13 +2,14 @@ import os
 import torch
 import numpy as np
 class ChampionshipManager():
-    def __init__(self,descision_maker, agents,windows,run_folder,championship_start):
+    def __init__(self,descision_maker, agents,windows,run_folder,championship_start,device):
         self.descision_maker= descision_maker
         if descision_maker =='drl':
             networks = [a.Q_eval_network for a in agents]
             self.groups = self.find_groups(networks)
             self.run_folder  =run_folder
             self.championship_start = championship_start
+            self.device = device
         
             self.championship_folder=  f'{run_folder}/championship'
             os.makedirs(self.championship_folder, exist_ok=True)
@@ -101,7 +102,14 @@ class ChampionshipManager():
                     if best != -1:
                         with open(score_file, 'w') as file:
                             file.write(str(high_score))
-                            torch.save(agents[best].Q_eval_network,os.path.join(g_folder_path,'best_model.pth'))
+                            torch.save(agents[best].Q_eval_network.state_dict(),os.path.join(g_folder_path,'best_model.pth'))
        
                         
-    
+    def load_weights(self,folder,agents):
+        if self.descision_maker != 'drl':   
+            return
+        for agent_id, agent in enumerate(agents):
+            for group_id,g in enumerate(self.groups):
+                if agent_id in g:
+                    weight_file =  os.path.join(folder,f'group_{group_id}/best_model.pth')
+                    agent.Q_eval_network.load_state_dict(torch.load(weight_file,map_location=self.device))
