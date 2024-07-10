@@ -100,11 +100,11 @@ def main():
         parser.add_argument('--lr_scheduler_epochs', type=int, default=2000, help='Integer')
         parser.add_argument('--optimizer', type=str, default='Adam', help='selected from https://pytorch.org/docs/stable/optim.html#algorithms, provided as a string')
         parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
-        parser.add_argument('--save_model_frequency', type=int, default=1000, help='Path to the hyperparameters file')
+        parser.add_argument('--save_model_frequency', type=int, default=10, help='Path to the hyperparameters file')
         parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
         parser.add_argument('--memory_size', type=int, default=10000, help='Integer')
         parser.add_argument('--batch_size', type=int, default=32, help='Float')
-        parser.add_argument('--replace_target_iter', type=int, default=3000, help='Float')
+        parser.add_argument('--replace_target_iter', type=int, default=50, help='Float')
         
         parser.add_argument('--championship_windows', type=str, default='10,20', help='comma-separated integers')
         parser.add_argument('--championship_start', type=int, default=1000, help='Float')

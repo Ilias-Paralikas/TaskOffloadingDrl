@@ -12,7 +12,7 @@ class RuleBased(DescisionMakerBase):
     def choose_action(self, observation,public_queues ,*args, **kwargs):
         actions = np.zeros(self.number_of_actions, dtype=int)
         task_size = observation[0]
-        task_size = task_size*0.45
+        task_size = task_size *0.45
         local_waiting_time = observation[1]
         local_procesing_time = task_size / self.local_cpu
         actions[0] = local_waiting_time + local_procesing_time

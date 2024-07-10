@@ -97,8 +97,7 @@ class ChampionshipManager():
                         if score>high_score:
                             high_score = score
                             best_agent = agents_in_group
-                        high_score = max(high_score,score)
-                        
+
                     
                     if best_agent != -1:
                         timestamp_file = os.path.join(g_folder_path,'timestamp.json')
