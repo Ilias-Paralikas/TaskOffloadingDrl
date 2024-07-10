@@ -90,19 +90,27 @@ class ChampionshipManager():
                     with open(score_file, 'r') as file:
                         high_score = file.read().strip()
                         high_score = float(high_score)
-                        best = -1
+                        best_agent = -1
                     
                     for agents_in_group in self.groups[i]:
                         score  = np.mean(transposed_arrays[agents_in_group][-window:])
                         if score>high_score:
                             high_score = score
-                            best = agents_in_group
+                            best_agent = agents_in_group
                         high_score = max(high_score,score)
                         
-                    if best != -1:
+                    
+                    if best_agent != -1:
+                        timestamp_file = os.path.join(g_folder_path,'timestamp.json')
+                        timestamp = {
+                            'Epoch': self.counter,
+                            'Agent':best_agent
+                        }
+                        with open(timestamp_file, 'w') as file:
+                            file.write(str(timestamp))
                         with open(score_file, 'w') as file:
                             file.write(str(high_score))
-                            torch.save(agents[best].Q_eval_network.state_dict(),os.path.join(g_folder_path,'best_model.pth'))
+                        torch.save(agents[best_agent].Q_eval_network.state_dict(),os.path.join(g_folder_path,'best_agent_model.pth'))
        
                         
     def load_weights(self,folder,agents):
@@ -111,5 +119,5 @@ class ChampionshipManager():
         for agent_id, agent in enumerate(agents):
             for group_id,g in enumerate(self.groups):
                 if agent_id in g:
-                    weight_file =  os.path.join(folder,f'group_{group_id}/best_model.pth')
+                    weight_file =  os.path.join(folder,f'group_{group_id}/best_agent_model.pth')
                     agent.Q_eval_network.load_state_dict(torch.load(weight_file,map_location=self.device))
