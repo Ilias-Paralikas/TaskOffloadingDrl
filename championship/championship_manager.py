@@ -1,6 +1,7 @@
 import os 
 import torch
 import numpy as np
+import json
 class ChampionshipManager():
     def __init__(self,descision_maker, agents,windows,run_folder,championship_start,device):
         self.descision_maker= descision_maker
@@ -105,6 +106,8 @@ class ChampionshipManager():
                             "Epoch": self.counter,
                             "Agent":best_agent
                         }
+                        timestamp = json.dumps(timestamp,indent=4) ### this saves the array in .json format)
+
                         with open(timestamp_file, 'w') as file:
                             file.write(str(timestamp))
                         with open(score_file, 'w') as file:
