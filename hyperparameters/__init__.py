@@ -39,7 +39,7 @@ def main():
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Number of servers in the system')
         
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.9, help='Number of servers in the system')
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.7, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
@@ -107,7 +107,7 @@ def main():
         parser.add_argument('--replace_target_iter', type=int, default=50, help='Float')
         
         parser.add_argument('--championship_windows', type=str, default='10,20', help='comma-separated integers')
-        parser.add_argument('--championship_start', type=int, default=1000, help='Float')
+        parser.add_argument('--championship_start', type=int, default=200, help='Float')
         args = parser.parse_args()
         
         

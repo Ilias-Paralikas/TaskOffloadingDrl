@@ -102,8 +102,8 @@ class ChampionshipManager():
                     if best_agent != -1:
                         timestamp_file = os.path.join(g_folder_path,'timestamp.json')
                         timestamp = {
-                            'Epoch': self.counter,
-                            'Agent':best_agent
+                            "Epoch": self.counter,
+                            "Agent":best_agent
                         }
                         with open(timestamp_file, 'w') as file:
                             file.write(str(timestamp))
