@@ -39,7 +39,7 @@ def main():
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Number of servers in the system')
         
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.7, help='Number of servers in the system')
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
@@ -140,7 +140,6 @@ def main():
         
         
         hidden_layers = comma_seperated_string_to_list(args.hidden_layers,int)
-        epsilon_decrement = args.epsilon_decrement/(args.episode_time +max(timeout_delay_maxs))
         
 
         topology_generator = topology_generator_choices[args.topology_generator](
@@ -189,7 +188,7 @@ def main():
                 "lstm_time_step":args.lstm_time_step,
                 "dropout_rate":args.dropout_rate,
                 "dueling":args.dueling,
-                "epsilon_decrement":epsilon_decrement,
+                "epsilon_decrement":args.epsilon_decrement,
                 "epsilon_end":args.epsilon_end,
                 "gamma":args.gamma,
                 "learning_rate":args.learning_rate,

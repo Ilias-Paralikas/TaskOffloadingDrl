@@ -13,7 +13,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=100, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=2, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=20, help='Device to use')
     parser.add_argument('--validate', type=bool, default=False, help='Device to use')
     parser.add_argument('--championship_window_folder', type=str, default=None, help='Device to use')
     args  = parser.parse_args()
