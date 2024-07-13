@@ -39,7 +39,7 @@ def main():
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Number of servers in the system')
         
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.9, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
@@ -80,12 +80,12 @@ def main():
         parser.add_argument('--cloud_capacities_max', type=float, default=30, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--skip_connections', type=int, default=3, help='Number of servers in the system')
+        parser.add_argument('--skip_connections', type=int, default=5, help='Number of servers in the system')
         
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
         
-        parser.add_argument('--decision_makers', type=str, default='drl', help='Number of servers in the system')
+        parser.add_argument('--decision_makers', type=str, default='rule_based', help='Number of servers in the system')
         parser.add_argument('--hidden_layers', type=str, default='1024,1024,1024', help='comma-separated integers')
         parser.add_argument('--lstm_layers', type=int, default=20, help='Integer')
         parser.add_argument('--lstm_time_step', type=int, default=10, help='Integer')

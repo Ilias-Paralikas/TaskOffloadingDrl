@@ -71,3 +71,12 @@ class Server():
     
     def get_offliading_servers(self):
         return self.offloading_servers
+    
+    
+    def get_active_queues(self):
+        active_queues  =self.public_queue_manager.get_active_queues()
+        return active_queues
+    
+    
+    def get_supporting_servers(self):
+        return self.supporting_servers

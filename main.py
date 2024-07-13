@@ -13,7 +13,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=100, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=20, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=100, help='Device to use')
     parser.add_argument('--validate', type=bool, default=False, help='Device to use')
     parser.add_argument('--championship_window_folder', type=str, default=None, help='Device to use')
     args  = parser.parse_args()
@@ -74,10 +74,9 @@ def main():
     
     scheduler_file = bookkeeper.get_scheduler_file()
     for i in range(number_of_servers):
-        server_features,foreign_queues,number_of_actions = env.get_server_dimensions(i)      
-        state_dimensions = task_features + server_features
+        state_dimensions,foreign_queues,number_of_actions = env.get_server_dimensions(i)      
         lstm_shape = foreign_queues 
-        #base case
+
         decision_maker_params ={'number_of_actions': number_of_actions} 
         
         if hyperparameters['decision_makers'] == 'drl':
@@ -136,7 +135,6 @@ def main():
     for key in hyperparameters:
         if key != 'connection_matrix':
             print(key ," : ",hyperparameters[key])
-            
     for epoch in range(args.epochs):
         observations,done, info = env.reset()
         local_observations,public_queues =observations

@@ -146,14 +146,18 @@ class PublicQueueManager():
     def get_public_queue_server_length(self,server_id):
         return self.public_queues[server_id].queue_length
     
-    def get_active_queues(self):
-        active_queues =0
+    def get_priorities(self):
         total_priority =0
         for _,q in self.public_queues.items():
             if not q.is_empty():
-                active_queues +=1
                 total_priority += q.current_task.get_priority() 
-        return active_queues,total_priority
+        return total_priority
+    def get_active_queues(self):
+        active_queues =0
+        for _,q in self.public_queues.items():
+            if not q.is_empty():
+                active_queues +=1
+        return active_queues
         
     def add_tasks(self,recieved_tasks=[]):
         for task in recieved_tasks:
@@ -167,8 +171,8 @@ class PublicQueueManager():
             drop_rewards[server_id]= self.public_queues[server_id].get_first_non_empty_element()
         
         finished_rewards = {}
-        active_queues,total_priority= self.get_active_queues()
-        
+        active_queues= self.get_active_queues()
+        total_priority = self.get_priorities()
         if active_queues!=0:
             distributed_computational_capacity = self.computational_capacity/total_priority
         else:
@@ -186,3 +190,4 @@ class PublicQueueManager():
         for server_id in self.supporting_servers:
             queue_lengths[server_id] = self.public_queues[server_id].get_queue_length()
         return queue_lengths
+    

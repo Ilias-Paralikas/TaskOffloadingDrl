@@ -80,14 +80,15 @@ class Environment():
         self.max_reward = max(drop_penalty_maxs)
         self.max_waiting_time = max(timeout_delay_maxs)
         self.get_task_features_maxs()
+        self.reset()
     def reset(self):
         
         
         
         if self.static_frequency:
             if self.static_counter % self.static_frequency ==0:
-                np.random.seed(0)
-                torch.manual_seed(0)
+                np.random.seed(42)
+                torch.manual_seed(42)
                 self.static_counter+=1
         self.current_time = 0
         for task_generator in self.task_generators:
@@ -124,8 +125,8 @@ class Environment():
     def scale_waiting_times(self,waiting_times):
         return waiting_times/self.max_waiting_time
     def pack_observation(self):
-        local_observations = np.zeros((self.number_of_servers,self.number_of_features))
-        public_queues  = [np.array([]) for key in range(self.number_of_servers+self.number_of_clouds)]
+        server_observations = np.zeros((self.number_of_servers,self.number_of_features))
+        public_queues_legth  = [np.array([]) for key in range(self.number_of_servers+self.number_of_clouds)]
         assert len(self.tasks) == self.number_of_servers
         for s in range(self.number_of_servers):
             if self.tasks[s]:
@@ -136,15 +137,34 @@ class Environment():
             waiting_times,server_public_queues = self.servers[s].get_features()     
             waiting_times = self.scale_waiting_times(waiting_times)       
             server_features = np.concatenate([task_features,waiting_times])
-            local_observations[s] = server_features
+            server_observations[s] = server_features
         
             for q in server_public_queues:
-                public_queues[q] = np.append(public_queues[q], server_public_queues[q])
+                public_queues_legth[q] = np.append(public_queues_legth[q], server_public_queues[q])
 
         cloud_public_queues = self.cloud.get_features()
         for q in cloud_public_queues:
-            public_queues[q] = np.append(public_queues[q], cloud_public_queues[q])      
-        return local_observations,public_queues
+            public_queues_legth[q] = np.append(public_queues_legth[q], cloud_public_queues[q])      
+            
+        local_observations = []
+        for i in range(len(server_observations)):
+            local_observations.append(np.append(server_observations[i],public_queues_legth[i]))
+
+        active_queues = [np.array([]) for _ in range(self.number_of_servers) ]
+        for s in self.servers:
+            server_active_queues = s.get_active_queues()
+            supporting_servers  = s.get_supporting_servers()
+            for target_server in supporting_servers:
+                active_queues[target_server] = np.append( active_queues[target_server],server_active_queues)
+            
+        cloud_active_queeus = self.cloud.get_active_queues()
+        supporting_servers  = self.cloud.get_supporting_servers()
+
+        for target_server in supporting_servers:
+            active_queues[target_server] = np.append( active_queues[target_server],cloud_active_queeus)
+            
+        return local_observations,active_queues
+    
     def add_action_info(self,action,server_id,task):
         if task:
             if action ==server_id:
@@ -202,8 +222,12 @@ class Environment():
         
     
     def get_server_dimensions(self,id):
-        return (self.servers[id].get_number_of_features(),
-                self.servers[id].get_number_of_actions()-1,
+        
+        local_observations, active_queues = self.pack_observation()
+        local_observations = local_observations[id]
+        active_queues  =  active_queues[id]
+        return (len(local_observations),
+                len(active_queues),
                 self.servers[id].get_number_of_actions()
         )
     def get_task_features(self):
