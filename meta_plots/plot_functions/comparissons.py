@@ -41,8 +41,9 @@ def main():
 
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
     parser.add_argument('--folder', type=str, default='meta_plots/logs/set_2/baselines', help='path to the folder containing the logs')
-    parser.add_argument('--plot_value', type=str, default ='rewards_history',help='name of the metric you want to plot. Note it must match the name in the metrics.pkl file')
+    parser.add_argument('--plot_value', type=str, default ='task_drop_ratio_history',help='name of the metric you want to plot. Note it must match the name in the metrics.pkl file')
     parser.add_argument('--average_window', type=int, default=100)
+    parser.add_argument('--y_label', type=str, default='Task Drop Tario')
     args = parser.parse_args()  
     
     run_folder = os.path.join(args.folder ,'runs') 
@@ -60,7 +61,7 @@ def main():
     x_values = specifications['x_values']
     label_mapping = specifications['label_mapping']
     x_label = specifications['x_label']
-    y_label  = specifications['y_label']
+    y_label  = args.y_label
     df_column_name = specifications['df_column_name']
     if 'key_mapping' in specifications:
         key_mapping = specifications['key_mapping']
