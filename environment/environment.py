@@ -211,7 +211,6 @@ class Environment():
         rewards = self.scale_rewards(rewards)
         rewards = -rewards
         
-        # tasks_dropped = 
         
         info  ={}
         info['rewards'] = rewards
