@@ -3,7 +3,11 @@ from utils import merge_dicts
 import queue
 import math
 class TaskQueue():
-    def __init__(self)->None:
+    def __init__(self,
+                 waiting_time_consumption,
+                 step_consumption)->None:
+        self.waiting_time_consumption=  waiting_time_consumption
+        self.step_consumption = step_consumption
         self.reset()
         
     def reset(self)->None:
@@ -51,9 +55,19 @@ class TaskQueue():
     def get_queue_length(self):
         return self.queue_length
 
+    def calculate_energy_consumption(self,task_size):
+        
+        process_energy_consumption = task_size * self.step_consumption
+        waiting_time_energy_consumption = self.queue_length * self.waiting_time_consumption
+        energy_consumption = process_energy_consumption + waiting_time_energy_consumption
+                
+        return energy_consumption
 class ProcessingQueue(TaskQueue):
-    def __init__(self,computational_capacity):
-        super().__init__()
+    def __init__(self,
+                 computational_capacity,
+                waiting_time_consumption,
+                 step_consumption):
+        super().__init__(waiting_time_consumption,step_consumption)
         self.computational_capacity = computational_capacity
         self.waiting_time =0
     def reset(self):
@@ -72,19 +86,28 @@ class ProcessingQueue(TaskQueue):
         
         
     def step(self):
+        energy_consumption =0
         if self.waiting_time>0:
             self.waiting_time -=1
         rewards = self.get_first_non_empty_element()
         if self.current_task.is_empty():
-            return rewards
-        rewards += self.current_task.process(self.computational_capacity,self.current_time)
-        return rewards
+            return rewards,energy_consumption
+        process_reward,task_processed,computational_density= self.current_task.process(self.computational_capacity,self.current_time)
+        rewards += process_reward
+        
+        self.queue_length -= task_processed
+        energy_consumption = self.calculate_energy_consumption(task_processed *computational_density)
+        
+        return rewards,energy_consumption
     
     
 
 class OffloadingQueue(TaskQueue):
-    def __init__(self,offloading_capacities):   
-        super().__init__()
+    def __init__(self,
+                 offloading_capacities,
+                 waiting_time_consumption,
+                 step_consumption):   
+        super().__init__(waiting_time_consumption,step_consumption)
         self.offloading_capacities = offloading_capacities
         self.reset()
     def reset(self):
@@ -104,39 +127,56 @@ class OffloadingQueue(TaskQueue):
         self.update_waiting_time(task)
         
     def step(self):
+        energy_consumption =0
         if self.waiting_time>0:
             self.waiting_time -=1
-        transmited_task = None
+        transmitted_task = None
         reward = self.get_first_non_empty_element()
         if self.current_task.is_empty():
-            return transmited_task,reward
+            return transmitted_task,reward,energy_consumption
+
 
         target_server_id = self.current_task.get_target_server_id()
         offloading_capacity = self.offloading_capacities[target_server_id]
-        transmited_task = self.current_task.transmit(offloading_capacity)
-        return transmited_task,reward
+        transmitted_task,transmitted_size = self.current_task.transmit(offloading_capacity)
+        
+        
+        self.queue_length -= transmitted_size
+        energy_consumption = self.calculate_energy_consumption(transmitted_size)
+
+        
+        return transmitted_task,reward,energy_consumption
     
 class PublicQueue(TaskQueue):
     def step(self,computational_capacity):
-        reward = 0
+        rewards = 0
+        energy_consumption = 0
         if self.current_task.is_empty():
-            return reward
-        reward, task_processed = self.current_task.public_process(computational_capacity,self.current_time)
+            return rewards,energy_consumption
+        rewards, task_processed,computational_density = self.current_task.public_process(computational_capacity,self.current_time)
+        
         self.queue_length -= task_processed
-        return reward
+        energy_consumption = self.calculate_energy_consumption(task_processed*computational_density)
+
+        return rewards,energy_consumption
+    
+        
                     
 
 class PublicQueueManager():
     def __init__(self,
                  id,
                  computational_capacity,
-                 supporting_servers):
+                 supporting_servers,
+                 waiting_time_consumption,
+                 step_consumption):
         self.id = id
         self.computational_capacity = computational_capacity
         self.supporting_servers = supporting_servers
         self.public_queues ={}
         for server_id in self.supporting_servers:
-            self.public_queues[server_id] = PublicQueue()
+            self.public_queues[server_id] = PublicQueue(waiting_time_consumption,
+                                                        step_consumption)
        
     
     def reset(self):
@@ -171,6 +211,7 @@ class PublicQueueManager():
             drop_rewards[server_id]= self.public_queues[server_id].get_first_non_empty_element()
         
         finished_rewards = {}
+        energy_rewards ={}
         active_queues= self.get_active_queues()
         total_priority = self.get_priorities()
         if active_queues!=0:
@@ -179,10 +220,10 @@ class PublicQueueManager():
             distributed_computational_capacity = 0
        
         for server_id in self.supporting_servers:
-            finished_rewards[server_id]= self.public_queues[server_id].step(distributed_computational_capacity)
+            finished_rewards[server_id],energy_rewards[server_id]= self.public_queues[server_id].step(distributed_computational_capacity)
          
         rewards = merge_dicts(drop_rewards,finished_rewards)
-        return rewards
+        return rewards,energy_rewards
     
     
     def get_queue_lengths(self):

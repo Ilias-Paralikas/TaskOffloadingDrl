@@ -6,6 +6,7 @@ from utils import merge_dicts,dict_to_array,remove_diagonal_and_reshape
 import numpy as np
 import torch
 import math
+
 class Environment():
     def __init__(self, 
                  static_frequency,
@@ -30,7 +31,16 @@ class Environment():
                 computational_density_distributions,
                 drop_penalty_mins,
                 drop_penalty_maxs,
-                drop_penalty_distributions,  
+                drop_penalty_distributions, 
+                private_queue_waiting_time_consumptions,
+                private_queue_step_consumptions,
+                public_queue_waiting_time_consumptions,
+                public_queue_step_consumptions,
+                offloading_queue_waiting_time_consumptions,
+                offloading_queue_step_consumptions,
+                cloud_waiting_time_consumption,
+                cloud_step_consumption,
+                delay_to_energy_ratio, 
                  number_of_clouds=1) -> None:
         self.number_of_servers = number_of_servers
         self.number_of_clouds = number_of_clouds
@@ -61,14 +71,22 @@ class Environment():
                                 private_queue_computational_capacity=  private_cpu_capacities[i],
                                 public_queues_computational_capacity= public_cpu_capacities[i],
                                 outbound_connections=  self.connection_matrix[i],
-                                inbound_connections=get_column(self.connection_matrix,i)) 
+                                inbound_connections=get_column(self.connection_matrix,i),
+                                private_queue_waiting_time_consumption=private_queue_waiting_time_consumptions[i],
+                                private_queue_step_consumption=private_queue_step_consumptions[i],
+                                offloading_queue_waiting_time_consumption=offloading_queue_waiting_time_consumptions[i],
+                                offloading_queue_step_consumption=offloading_queue_step_consumptions[i],
+                                public_queue_waiting_time_consumption=public_queue_waiting_time_consumptions[i],
+                                public_queue_step_consumption=public_queue_step_consumptions[i]) 
                         for i in range(number_of_servers)]
        
         self.matchmakers = [Matchmaker(id=s.id,
                                        offloading_servers=s.get_offliading_servers())
                             for s in self.servers]
         self.cloud = Cloud(number_of_servers=number_of_servers,
-                           computational_capacity=cloud_computational_capacity)
+                           computational_capacity=cloud_computational_capacity,
+                           waiting_time_consumption = cloud_waiting_time_consumption,
+                            step_consumption = cloud_step_consumption)
         
         
         self.number_of_task_features=  self.task_generators[0].generate().get_number_of_features()
@@ -79,6 +97,18 @@ class Environment():
         
         self.max_reward = max(drop_penalty_maxs)
         self.max_waiting_time = max(timeout_delay_maxs)
+        
+        self.max_consumption = self.max_waiting_time * ( \
+                sum(private_queue_waiting_time_consumptions)\
+                + sum(public_queue_waiting_time_consumptions)\
+                + sum(offloading_queue_waiting_time_consumptions)\
+                +   cloud_waiting_time_consumption) + \
+        +sum((self.number_of_servers-1) * public_queue_step_consumptions) \
+        + max(private_queue_step_consumptions)\
+        + max(offloading_queue_step_consumptions)\
+        + cloud_step_consumption
+        
+        self.delay_to_energy_ratio= delay_to_energy_ratio
         self.get_task_features_maxs()
         self.reset()
     def reset(self):
@@ -112,8 +142,11 @@ class Environment():
     def reset_transmitted_tasks(self):
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
     
-    def scale_rewards(self,reward):
+    def scale_delay(self,reward):
         return reward/self.max_reward
+    def scale_consumption(self,consumption):
+        return consumption/self.max_consumption
+    
     
     def get_task_features_maxs(self):
         self.feature_maxes = self.task_generators[0].get_maxs()
@@ -190,13 +223,14 @@ class Environment():
         self.cloud.add_offloaded_tasks(self.horisontal_transmitted_tasks[-1])
         self.reset_transmitted_tasks()
         
-        rewards = self.cloud.step()
+        delay_rewards,energy_rewards = self.cloud.step()
         
         for server_id in range(self.number_of_servers):
             action = self.matchmakers[server_id].match_action(server_id,actions[server_id])
             self.add_action_info(action,server_id,self.tasks[server_id])
-            transmited_task, server_reward = self.servers[server_id].step(action,self.tasks[server_id])
-            rewards = merge_dicts(rewards,server_reward)
+            transmited_task, server_delay_reward,server_energey_rewards = self.servers[server_id].step(action,self.tasks[server_id])
+            delay_rewards = merge_dicts(delay_rewards,server_delay_reward)
+            energy_rewards = merge_dicts(energy_rewards,server_energey_rewards)
             if transmited_task:
                 origin_server_id = transmited_task.get_origin_server_id()
                 assert origin_server_id == server_id
@@ -207,15 +241,24 @@ class Environment():
         self.tasks= [t.step() for t in self.task_generators]     
                
         observations = self.pack_observation()
-        rewards  = dict_to_array(rewards,self.number_of_servers)
-        rewards = self.scale_rewards(rewards)
-        rewards = -rewards
+        
+        delay_rewards  = dict_to_array(delay_rewards,self.number_of_servers)
+        delay_rewards = self.scale_delay(delay_rewards)
+        delay_rewards = -delay_rewards
+        
+        energy_rewards = dict_to_array(energy_rewards,self.number_of_servers)
+        energy_rewards = self.scale_consumption(energy_rewards)
+        energy_rewards = -energy_rewards
         
         
+        rewards =   self.delay_to_energy_ratio *delay_rewards +  \
+                    (1-self.delay_to_energy_ratio) *energy_rewards
         info  ={}
+        info['delay_rewards'] = delay_rewards
+        info['energy_rewards'] = energy_rewards
         info['rewards'] = rewards
         info['tasks_arrived'] = np.array(tasks_arrived)
-        info['tasks_dropped'] = -np.ceil(rewards)
+        info['tasks_dropped'] = -np.ceil(delay_rewards)
         
         return observations,rewards, done, info
         

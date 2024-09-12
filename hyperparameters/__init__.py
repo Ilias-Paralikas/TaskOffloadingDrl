@@ -21,10 +21,9 @@ def fill_array(string, length, default_value,dtype):
 
 def main():
         parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
-        # file to get the hyperparameters from
         parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=20, help='Number of servers in the system')
+        parser.add_argument('--number_of_servers', type=int, default=5, help='Number of servers in the system')
 
         parser.add_argument('--default_private_cpu_capacity', type=float, default=5, help='Number of servers in the system')
         parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
@@ -39,7 +38,31 @@ def main():
         
         parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Number of servers in the system')
         
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
+   
+        parser.add_argument('--default_private_queue_waiting_time_consumptions', type=float, default=0.1, help='Number of servers in the system')
+        parser.add_argument('--private_queue_waiting_time_consumptions', type=str, default=None, help='Number of servers in the system')
+
+        parser.add_argument('--default_private_queue_step_consumptions', type=float, default=1, help='Number of servers in the system')
+        parser.add_argument('--private_queue_step_consumptions', type=str, default=None, help='Number of servers in the system')
+        
+        parser.add_argument('--default_public_queue_waiting_time_consumptions', type=float, default=0.2, help='Number of servers in the system')
+        parser.add_argument('--public_queue_waiting_time_consumptions', type=str, default=None, help='Number of servers in the system')
+        
+        parser.add_argument('--default_public_queue_step_consumptions', type=float, default=2, help='Number of servers in the system')
+        parser.add_argument('--public_queue_step_consumptions', type=str, default=None, help='Number of servers in the system')
+        
+        parser.add_argument('--default_offloading_queue_waiting_time_consumptions', type=float, default=0.3, help='Number of servers in the system')
+        parser.add_argument('--offloading_queue_waiting_time_consumptions', type=str, default=None, help='Number of servers in the system')
+        
+        parser.add_argument('--default_offloading_queue_step_consumptions', type=float, default=3, help='Number of servers in the system')
+        parser.add_argument('--offloading_queue_step_consumptions', type=str, default=None, help='Number of servers in the system')
+        
+        parser.add_argument('--cloud_waiting_time_consumption', type=float, default=0.4, help='Number of servers in the system')
+        parser.add_argument('--cloud_step_consumption', type=float, default=4, help='Number of servers in the system')
+        
+        parser.add_argument('--delay_to_energy_ratio', type=float, default=0.5, help='Number of servers in the system')
+       
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.9, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
@@ -80,10 +103,15 @@ def main():
         parser.add_argument('--cloud_capacities_max', type=float, default=30, help='Number of servers in the system')
         parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
         
-        parser.add_argument('--skip_connections', type=int, default=5, help='Number of servers in the system')
+        
+     
+        parser.add_argument('--skip_connections', type=int, default=1, help='Number of servers in the system')
         
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
         parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
+        
+        
+        
         
         parser.add_argument('--decision_makers', type=str, default='drl', help='Number of servers in the system')
         parser.add_argument('--hidden_layers', type=str, default='1024,1024,1024', help='comma-separated integers')
@@ -113,7 +141,18 @@ def main():
         
         private_cpu_capacities = fill_array(args.private_cpu_capacities,args.number_of_servers,args.default_private_cpu_capacity,float)
         public_cpu_capacities = fill_array(args.public_cpu_capacities,args.number_of_servers,args.default_public_cpu_capacity,float)
-        cloud_computational_capacity = args.cloud_computational_capacity
+        cloud_computational_capacity = args.cloud_computational_capacity *args.time_step
+        
+        private_queue_waiting_time_consumptions = fill_array(args.private_queue_waiting_time_consumptions,args.number_of_servers,args.default_private_queue_waiting_time_consumptions,float)
+        private_queue_step_consumptions = fill_array(args.private_queue_step_consumptions,args.number_of_servers,args.default_private_queue_step_consumptions,float)
+        public_queue_waiting_time_consumptions = fill_array(args.public_queue_waiting_time_consumptions,args.number_of_servers,args.default_public_queue_waiting_time_consumptions,float)
+        public_queue_step_consumptions = fill_array(args.public_queue_step_consumptions,args.number_of_servers,args.default_public_queue_step_consumptions,float)
+        offloading_queue_waiting_time_consumptions = fill_array(args.offloading_queue_waiting_time_consumptions,args.number_of_servers,args.default_offloading_queue_waiting_time_consumptions,float)
+        offloading_queue_step_consumptions = fill_array(args.offloading_queue_step_consumptions,args.number_of_servers,args.default_offloading_queue_step_consumptions,float)
+        cloud_waiting_time_consumption = args.cloud_waiting_time_consumption*args.time_step
+        cloud_step_consumption = args.cloud_step_consumption*args.time_step
+        delay_to_energy_ratio= args.delay_to_energy_ratio
+      
         task_arrive_probabilities = fill_array(args.task_arrive_probabilities,args.number_of_servers,args.default_task_arrive_probabilities,float)
         task_size_mins = fill_array(args.task_size_mins,args.number_of_servers,args.default_task_size_mins,int)
         task_size_maxs = fill_array(args.task_size_maxs,args.number_of_servers,args.default_task_size_maxs,int)
@@ -130,6 +169,8 @@ def main():
         drop_penalty_mins = fill_array(args.drop_penalty_mins,args.number_of_servers,args.default_drop_penalty_mins,int)
         drop_penalty_maxs = fill_array(args.drop_penalty_maxs,args.number_of_servers,args.default_drop_penalty_maxs,int)
         drop_penalty_distributions = fill_array(args.drop_penalty_distributions,args.number_of_servers,args.drop_penalty_distributions,str)
+        
+
         
         
         
@@ -164,7 +205,16 @@ def main():
                 "public_cpu_capacities":mull_array(public_cpu_capacities,args.time_step),
                 "episode_time":args.episode_time,
                 "static_frequency":args.static_frequency,
-                "cloud_computational_capacity":cloud_computational_capacity*args.time_step,
+                "cloud_computational_capacity":cloud_computational_capacity,
+                "private_queue_waiting_time_consumptions":mull_array(private_queue_waiting_time_consumptions,args.time_step),
+                "private_queue_step_consumptions":mull_array(private_queue_step_consumptions,args.time_step),
+                "public_queue_waiting_time_consumptions":mull_array(public_queue_waiting_time_consumptions,args.time_step),
+                "public_queue_step_consumptions":mull_array(public_queue_step_consumptions,args.time_step),
+                "offloading_queue_waiting_time_consumptions":mull_array(offloading_queue_waiting_time_consumptions,args.time_step),
+                "offloading_queue_step_consumptions":mull_array(offloading_queue_step_consumptions,args.time_step),
+                "cloud_waiting_time_consumption":cloud_waiting_time_consumption,
+                "cloud_step_consumption":cloud_step_consumption,
+                "delay_to_energy_ratio":delay_to_energy_ratio,
                 "task_arrive_probabilities":task_arrive_probabilities,
                 "task_size_mins":task_size_mins,
                 "task_size_maxs":task_size_maxs,

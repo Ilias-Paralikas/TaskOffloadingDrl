@@ -6,6 +6,7 @@ import numpy as np
 import argparse
 import torch
 import os
+
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     parser = argparse.ArgumentParser()
@@ -13,7 +14,7 @@ def main():
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
     parser.add_argument('--average_window', type=int, default=100, help='Device to use')
-    parser.add_argument('--epochs', type=int, default=1, help='Device to use')
+    parser.add_argument('--epochs', type=int, default=5, help='Device to use')
     parser.add_argument('--validate', type=bool, default=False, help='Device to use')
     parser.add_argument('--championship_window_folder', type=str, default=None, help='Device to use')
     args  = parser.parse_args()
@@ -49,7 +50,16 @@ def main():
         computational_density_distributions=hyperparameters['computational_density_distributions'],
         drop_penalty_mins=hyperparameters['drop_penalty_mins'],
         drop_penalty_maxs=hyperparameters['drop_penalty_maxs'],
-        drop_penalty_distributions=hyperparameters['drop_penalty_distributions']
+        drop_penalty_distributions=hyperparameters['drop_penalty_distributions'],
+        private_queue_waiting_time_consumptions = hyperparameters['private_queue_waiting_time_consumptions'],
+        private_queue_step_consumptions = hyperparameters['private_queue_step_consumptions'],
+        public_queue_waiting_time_consumptions = hyperparameters['public_queue_waiting_time_consumptions'],
+        public_queue_step_consumptions = hyperparameters['public_queue_step_consumptions'],
+        offloading_queue_waiting_time_consumptions = hyperparameters['offloading_queue_waiting_time_consumptions'],
+        offloading_queue_step_consumptions = hyperparameters['offloading_queue_step_consumptions'],
+        cloud_waiting_time_consumption = hyperparameters['cloud_waiting_time_consumption'],
+        cloud_step_consumption = hyperparameters['cloud_step_consumption'],
+        delay_to_energy_ratio = hyperparameters['delay_to_energy_ratio']
     )
     
     

@@ -22,9 +22,7 @@ def dict_to_array(dict, length):
     array = np.zeros(length, dtype=np.float32)
     # Iterate through the dictionary
     for key, value in dict.items():
-        # If the key is within the bounds of the array length, set the corresponding value
-        if 0 <= key < length:
-            array[key] = value
+        array[key] = value
     return array
 
 def remove_diagonal_and_reshape(matrix):

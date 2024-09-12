@@ -40,24 +40,32 @@ class Task():
     
         
     def process(self,capacity,time):
-        self.remain -= capacity /self.computational_density
+        task_processed = capacity /self.computational_density
+        self.remain -= task_processed
+        reward=  0
         if self.remain <=0:
-            return self.finish_task(time)
-        return 0
+            task_processed += self.remain
+            reward = self.finish_task(time)
+        return reward,task_processed,self.computational_density
 
     def public_process(self,capacity,time):
         computational_capacity =  capacity  * self.priotiry
         task_processed = computational_capacity / self.computational_density
         self.remain -= task_processed
+        reward = 0
         if self.remain <=0:
             task_processed += self.remain
-            return self.finish_task(time), task_processed
-        return 0,task_processed
+            reward = self.finish_task(time)
+        return reward,task_processed,self.computational_density
 
     def transmit(self,offloading_capacity):
-        self.remain -= offloading_capacity
+        transmitted_size = offloading_capacity
+        self.remain -= transmitted_size
+        transmitted_task =None
+        
         if self.remain <=0:
-            transmited_task =  Task(size = self.size,
+            self.empty = True
+            transmitted_task =  Task(size = self.size,
                                 arrival_time = self.arrival_time,
                                 timeout_delay = self.timeout_delay,
                                 priotiry=self.priotiry,
@@ -66,9 +74,8 @@ class Task():
                                 origin_server_id= self.origin_server_id,
                                 target_server_id = self.target_server_id)
             self.empty = True
-            return transmited_task
-        else:
-            return None 
+            transmitted_size += self.remain
+        return transmitted_task ,transmitted_size
 
     def get_size(self):
         assert not self.empty

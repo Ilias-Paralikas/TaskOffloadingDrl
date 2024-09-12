@@ -5,7 +5,9 @@ from .queues import PublicQueueManager
 class Cloud:
     def __init__(self,
                  number_of_servers ,
-                 computational_capacity):
+                 computational_capacity,
+                 waiting_time_consumption,
+                 step_consumption):
         self.number_of_servers=  number_of_servers
         self.computational_capacity = computational_capacity
         
@@ -13,7 +15,9 @@ class Cloud:
         self.supporting_servers = np.arange(self.number_of_servers)
         self.public_queue_manager = PublicQueueManager(id=self.number_of_servers,
                                                        computational_capacity=  self.computational_capacity,
-                                                       supporting_servers= self.supporting_servers)
+                                                       supporting_servers= self.supporting_servers,
+                                                       waiting_time_consumption=waiting_time_consumption,
+                                                       step_consumption=step_consumption)
     def reset(self):
         self.current_time=0
         self.public_queue_manager.reset()
