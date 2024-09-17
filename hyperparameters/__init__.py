@@ -134,8 +134,8 @@ def main():
         parser.add_argument('--batch_size', type=int, default=32, help='Float')
         parser.add_argument('--replace_target_iter', type=int, default=50, help='Float')
         
-        parser.add_argument('--championship_windows', type=str, default='10,20', help='comma-separated integers')
-        parser.add_argument('--championship_start', type=int, default=200, help='Float')
+        parser.add_argument('--championship_windows', type=str, default='10,20,50,100,200', help='comma-separated integers')
+        parser.add_argument('--championship_start', type=int, default=50, help='Float')
         args = parser.parse_args()
         
         
