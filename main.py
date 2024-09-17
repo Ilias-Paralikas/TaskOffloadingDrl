@@ -13,7 +13,7 @@ def main():
     parser.add_argument('--log_folder', type=str, default='log_folder', help='Path to the log folder')
     parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
     parser.add_argument('--resume_run', type=str, default=None, help='Name of the run to resume')
-    parser.add_argument('--average_window', type=int, default=100, help='Device to use')
+    parser.add_argument('--average_window', type=int, default=5, help='Device to use')
     parser.add_argument('--epochs', type=int, default=5, help='Device to use')
     parser.add_argument('--validate', type=bool, default=False, help='Device to use')
     parser.add_argument('--championship_window_folder', type=str, default=None, help='Device to use')
@@ -139,7 +139,9 @@ def main():
                                   device)
     
     if args.championship_window_folder is not None:
-        championship_window_folder = os.path.join(run_folder,args.championship_window_folder)
+        
+        championship_window_folder = os.path.join('championship','window_'+str(args.championship_window_folder))
+        championship_window_folder = os.path.join(run_folder,championship_window_folder)
         manager.load_weights(championship_window_folder,decision_makers)
         
     for key in hyperparameters:
