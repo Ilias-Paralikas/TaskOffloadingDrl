@@ -105,10 +105,10 @@ def main():
         
         
      
-        parser.add_argument('--skip_connections', type=int, default=5, help='Number of servers in the system')
+        parser.add_argument('--skip_connections', type=int, default=2, help='Number of servers in the system')
         
         parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
-        parser.add_argument('--symetric', type=bool, default=True, help='Number of servers in the system')
+        parser.add_argument('--symetric', type=bool, default=False, help='Number of servers in the system')
         
         
         
@@ -134,8 +134,8 @@ def main():
         parser.add_argument('--batch_size', type=int, default=32, help='Float')
         parser.add_argument('--replace_target_iter', type=int, default=50, help='Float')
         
-        parser.add_argument('--championship_windows', type=str, default='10,20,50,100,200', help='comma-separated integers')
-        parser.add_argument('--championship_start', type=int, default=50, help='Float')
+        parser.add_argument('--championship_windows', type=str, default='1,2,5,10,20,50,100,200', help='comma-separated integers')
+        parser.add_argument('--championship_start', type=int, default=1, help='Float')
         args = parser.parse_args()
         
         
