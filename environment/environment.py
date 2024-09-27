@@ -142,10 +142,9 @@ class Environment():
     def reset_transmitted_tasks(self):
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
     
-    def scale_delay(self,reward):
-        return reward/self.max_reward
-    def scale_consumption(self,consumption):
-        return consumption/self.max_consumption
+    def scale_reward(self,reward):
+        return reward/(self.max_reward+self.max_consumption)
+
     
     
     def get_task_features_maxs(self):
@@ -243,16 +242,15 @@ class Environment():
         observations = self.pack_observation()
         
         delay_rewards  = dict_to_array(delay_rewards,self.number_of_servers)
-        delay_rewards = self.scale_delay(delay_rewards)
         delay_rewards = -delay_rewards
         
         energy_rewards = dict_to_array(energy_rewards,self.number_of_servers)
-        energy_rewards = self.scale_consumption(energy_rewards)
         energy_rewards = -energy_rewards
         
         
         rewards =   self.delay_to_energy_ratio *delay_rewards +  \
                     (1-self.delay_to_energy_ratio) *energy_rewards
+        rewards = self.scale_reward(rewards)
         info  ={}
         info['delay_rewards'] = delay_rewards
         info['energy_rewards'] = energy_rewards
