@@ -72,7 +72,6 @@ class DeepQNetwork(nn.Module):
         else:
             q_values = self.output_layer(sequential_output)
             
-        q_values = nn.Softmax(dim=1)(q_values)
         return q_values
     
 
@@ -186,10 +185,10 @@ class Agent(DescisionMakerBase):
                 lstm_input = torch.tensor(lstm_history_np,dtype=torch.float32).to(self.device)
                 action_values = self.Q_eval_network(observation, lstm_input).detach().cpu().numpy().flatten()
             
-                # action = np.argmax(action_values)
+                action = np.argmax(action_values)
 
-                action_probabilities = action_values / np.sum(action_values)
-                action = np.random.choice(self.number_of_actions, p=action_probabilities)
+                # action_probabilities = action_values / np.sum(action_values)
+                # action = np.random.choice(self.number_of_actions, p=action_probabilities)
       
             else:
                 action = np.random.choice(self.number_of_actions)
