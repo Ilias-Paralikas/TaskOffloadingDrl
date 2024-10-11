@@ -171,6 +171,7 @@ class BookKeeper:
         score, average_score = np.mean(self.metrics['rewards_history'][-1]), np.mean(self.metrics['rewards_history'][-self.average_window:])
         print(f'Epoch: {epochs} \tScore: {score:.3f} \tAverage Score: {average_score:.3f} \tEpsilon: {epsilon:.3f}')
         
+        return average_score
 
     def plot_and_save(self, key):
         if key not in self.metrics:

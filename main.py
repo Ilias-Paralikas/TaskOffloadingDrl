@@ -63,7 +63,6 @@ def main():
     )
     
     
-    task_features = env.get_task_features()
     checkpoint_folder = bookkeeper.get_checkpoint_folder()
     decision_makers = []
     
@@ -169,7 +168,7 @@ def main():
                         
             local_observations,public_queues  = local_observations_,public_queues_
      
-        bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
+        average_reward = bookkeeper.store_episode(epsilon=decision_makers[0].get_epsilon(),actions=env.get_episode_actions())   
         
            
         if not args.validate:
@@ -181,7 +180,8 @@ def main():
             manager.step(rewards_history,decision_makers)
  
     bookkeeper.plot_metrics()
+    return average_reward
                                 
                     
 if __name__ == "__main__":
-    main()
+    avergae_reward =main()
