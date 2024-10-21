@@ -36,10 +36,14 @@ class DeepQNetwork(nn.Module):
         self.lstm_layers = lstm_layers
         self.dueling = dueling
         
-        self.lstm_unit = nn.LSTM(input_size= lstm_input_shape,hidden_size =lstm_output_shape,num_layers =lstm_layers,batch_first=True)
+        if self.lstm_layers !=0:
+            self.lstm_unit = nn.LSTM(input_size= lstm_input_shape,hidden_size =lstm_output_shape,num_layers =lstm_layers,batch_first=True)
+            last_layer_size = state_dimensions+lstm_output_shape
 
+        else:
+            last_layer_size = state_dimensions
+            
         layers = []
-        last_layer_size = state_dimensions+lstm_output_shape
         for next_layer_size in hidden_layers:
             layers.append(nn.Linear(last_layer_size, next_layer_size))
             layers.append(nn.LeakyReLU())
@@ -54,16 +58,17 @@ class DeepQNetwork(nn.Module):
         else:
             self.output_layer = nn.Linear(last_layer_size, self.number_of_actions)
         
-    def forward(self,state,lstm_input):
-        batch_size = lstm_input.shape[0]
-        h0 = torch.zeros(self.lstm_layers,batch_size,self.lstm_output_shape).to(lstm_input.device)
-        c0 = torch.zeros(self.lstm_layers,batch_size,self.lstm_output_shape).to(lstm_input.device)
-        lstm_output,_ = self.lstm_unit(lstm_input,[h0,c0])
-        lstm_output = lstm_output[:,-1]
-
-
-        combined_input = torch.cat((state, lstm_output), dim=1)
-        sequential_output = self.sequential(combined_input)
+    def forward(self,state,lstm_input=None):
+        if self.lstm_layers != 0:
+            batch_size = lstm_input.shape[0]
+            h0 = torch.zeros(self.lstm_layers,batch_size,self.lstm_output_shape).to(lstm_input.device)
+            c0 = torch.zeros(self.lstm_layers,batch_size,self.lstm_output_shape).to(lstm_input.device)
+            lstm_output,_ = self.lstm_unit(lstm_input,[h0,c0])
+            lstm_output = lstm_output[:,-1]
+            network_input = torch.cat((state, lstm_output), dim=1)
+        else:
+            network_input = state
+        sequential_output = self.sequential(network_input)
         
         if self.dueling:
             value = self.value_layer(sequential_output)
