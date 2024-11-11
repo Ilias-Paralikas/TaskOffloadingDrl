@@ -26,7 +26,7 @@ def main():
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
 
     parser.add_argument('--plot_value', type=str, default ='rewards_history',help='name of the metric you want to plot. Note it must match the name in the metrics.pkl file')
-    parser.add_argument('--folder', type=str, default='meta_plots/logs/decoffe/gamma', help='path to the folder containing the logs')
+    parser.add_argument('--folder', type=str, default='meta_plots/logs/decoffe/new_lr', help='path to the folder containing the logs')
     parser.add_argument('--average_window', type=int, default=200)
     parser.add_argument('--clip', type=int, default=5000)
     parser.add_argument('--marker_every', type=int, default=200)
@@ -48,10 +48,18 @@ def main():
     average_values =  dict(sorted(average_values.items()))
     
     min_length = min(len(v) for v in average_values.values())
+      
     specifications_file = os.path.join(args.folder, 'specifications.json')
-    with open(specifications_file, 'r') as f:
-    # Load the JSON data from the file
-        specifications = json.load(f)
+    try:
+        with open(specifications_file, 'r') as f:
+        # Load the JSON data from the file
+                specifications = json.load(f)
+    except:
+        specifications = {
+            'y_label': 'Reward',
+            'label_mapping': {}
+        }
+        print('Warning: specifications file not found')
 # Define a list of marker styles
     markers = ['o', 's', '^', 'D', '*', 'p', 'x', '+', 'v', '<', '>', '1', '2', '3', '4', 'h', 'H', '|', '_']
 
