@@ -42,7 +42,7 @@ class Environment():
                 cloud_step_consumption,
                 delay_to_energy_ratio, 
                  number_of_clouds=1,
-                 scale_iterations=10) -> None:
+                 scale_iterations=100) -> None:
         self.number_of_servers = number_of_servers
         self.number_of_clouds = number_of_clouds
         self.current_time = 0
