@@ -41,7 +41,8 @@ class Environment():
                 cloud_waiting_time_consumption,
                 cloud_step_consumption,
                 delay_to_energy_ratio, 
-                 number_of_clouds=1) -> None:
+                 number_of_clouds=1,
+                 scale_iterations=10) -> None:
         self.number_of_servers = number_of_servers
         self.number_of_clouds = number_of_clouds
         self.current_time = 0
@@ -95,21 +96,12 @@ class Environment():
         self.static_frequency = static_frequency
         self.static_counter = 0
         
-        self.max_reward = max(drop_penalty_maxs)
         self.max_waiting_time = max(timeout_delay_maxs)
-        
-        self.max_consumption = self.max_waiting_time * ( \
-                sum(private_queue_waiting_time_consumptions)\
-                + sum(public_queue_waiting_time_consumptions)\
-                + sum(offloading_queue_waiting_time_consumptions)\
-                +   cloud_waiting_time_consumption) + \
-        +sum((self.number_of_servers-1) * public_queue_step_consumptions) \
-        + max(private_queue_step_consumptions)\
-        + max(offloading_queue_step_consumptions)\
-        + cloud_step_consumption
+
         
         self.delay_to_energy_ratio= delay_to_energy_ratio
         self.get_task_features_maxs()
+        self.get_scaling_factors(scale_iterations)
         self.reset()
     def reset(self):
         
@@ -142,9 +134,7 @@ class Environment():
     def reset_transmitted_tasks(self):
         self.horisontal_transmitted_tasks = [[] for _ in range(self.number_of_servers+self.number_of_clouds)]
     
-    def scale_reward(self,reward):
-        return reward/(self.max_reward+self.max_consumption)
-
+  
     
     
     def get_task_features_maxs(self):
@@ -243,17 +233,18 @@ class Environment():
         
         delay_rewards  = dict_to_array(delay_rewards,self.number_of_servers)
         delay_rewards = -delay_rewards
+        scaled_delay_rewards = delay_rewards/self.delay_scaling
         
         energy_rewards = dict_to_array(energy_rewards,self.number_of_servers)
         energy_rewards = -energy_rewards
+        scaled_energy_rewards = energy_rewards/self.energy_scaling
+
         
-        
-        rewards =   self.delay_to_energy_ratio *delay_rewards +  \
-                    (1-self.delay_to_energy_ratio) *energy_rewards
-        rewards = self.scale_reward(rewards)
+        rewards =   self.delay_to_energy_ratio *scaled_delay_rewards +  \
+                    (1-self.delay_to_energy_ratio) *scaled_energy_rewards
         info  ={}
-        info['delay_rewards'] = delay_rewards
-        info['energy_rewards'] = energy_rewards
+        info['delay_rewards'] = scaled_delay_rewards
+        info['energy_rewards'] = scaled_energy_rewards
         info['rewards'] = rewards
         info['tasks_arrived'] = np.array(tasks_arrived)
         info['tasks_dropped'] = -np.ceil(delay_rewards)
@@ -289,3 +280,29 @@ class Environment():
         
         
         
+        
+    def get_scaling_factors(self,iterations):
+        delay_rewards = []
+        energy_rewards = []
+        self.delay_scaling = 1
+        self.energy_scaling = 1
+        
+        for _ in range(iterations):
+            episode_delay_rewards = []
+            episode_energy_rewards = []
+            self.reset()
+
+            for _ in range(self.episode_time_end):
+                actions = [np.random.randint(0,self.servers[j].get_number_of_actions()) for j in range(self.number_of_servers)]
+                _, _,_,info =self.step(actions)
+                mean_delay_rewards = np.mean(info['delay_rewards'])
+                mean_energy_rewards = np.mean(info['energy_rewards'])
+                
+                episode_delay_rewards.append(mean_delay_rewards)
+                episode_energy_rewards.append(mean_energy_rewards)
+            
+            delay_rewards.append(np.sum(episode_delay_rewards))
+            energy_rewards.append(np.sum(episode_energy_rewards))
+            
+        self.delay_scaling =  - np.mean(delay_rewards)
+        self.energy_scaling =  - np.mean(energy_rewards)
