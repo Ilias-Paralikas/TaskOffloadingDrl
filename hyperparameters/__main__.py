@@ -62,7 +62,7 @@ def main():
         
         parser.add_argument('--delay_to_energy_ratio', type=float, default=0.5, help='Number of servers in the system')
        
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.9, help='Number of servers in the system')
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.3, help='Number of servers in the system')
         parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
         
         parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
