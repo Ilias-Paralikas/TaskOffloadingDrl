@@ -97,6 +97,7 @@ class Environment():
         self.static_counter = 0
         
         self.max_waiting_time = max(timeout_delay_maxs)
+        self.timeout_penalty = max(drop_penalty_maxs)
 
         
         self.delay_to_energy_ratio= delay_to_energy_ratio
@@ -243,11 +244,16 @@ class Environment():
         rewards =   self.delay_to_energy_ratio *scaled_delay_rewards +  \
                     (1-self.delay_to_energy_ratio) *scaled_energy_rewards
         info  ={}
-        info['delay_rewards'] = scaled_delay_rewards
-        info['energy_rewards'] = scaled_energy_rewards
+        
+        tasks_dropped  =-np.ceil(delay_rewards/self.timeout_penalty)
+        delay_without_drop = delay_rewards + tasks_dropped*self.timeout_penalty
+        
+        info['delay_rewards'] = delay_rewards
+        info['delay_without_drop_rewards'] = delay_without_drop
+        info['energy_rewards'] = energy_rewards
         info['rewards'] = rewards
         info['tasks_arrived'] = np.array(tasks_arrived)
-        info['tasks_dropped'] = -np.ceil(delay_rewards)
+        info['tasks_dropped'] = tasks_dropped
         
         return observations,rewards, done, info
         

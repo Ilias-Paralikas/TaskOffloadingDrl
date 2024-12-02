@@ -15,7 +15,7 @@ class BookKeeper:
                  resume_run=None,
                  average_window=500):
         
-        self.plotable_metrics = ['rewards_history','delay_rewards_history','energy_rewards_history','task_drop_ratio_history']
+        self.plotable_metrics = ['rewards_history','delay_without_drop_rewards_history','energy_rewards_history','task_drop_ratio_history']
         self.log_folder = log_folder
         self.average_window = average_window
         os.makedirs(log_folder, exist_ok=True)
@@ -68,7 +68,7 @@ class BookKeeper:
                         
             self.metrics ={}
             self.metrics['epsilon_history'] =[1.0]
-            self.metrics['delay_rewards_history'] =[]
+            self.metrics['delay_without_drop_rewards_history'] =[]
             self.metrics['energy_rewards_history'] =[]
             self.metrics['rewards_history'] =[]
             self.metrics['task_drop_ratio_history'] =[]
@@ -93,7 +93,7 @@ class BookKeeper:
                 
                 
 
-        self.delay_rewards = []
+        self.delay_without_drop_rewards = []
         self.energy_rewards =[]
         self.rewards =[]
         self.tasks_dropped =[]
@@ -123,16 +123,16 @@ class BookKeeper:
     
 
     def store_step(self,info):
-        self.delay_rewards.append(info['delay_rewards'])
+        self.delay_without_drop_rewards.append(info['delay_without_drop_rewards'])
         self.energy_rewards.append(info['energy_rewards'])
         self.rewards.append(info['rewards'])
         self.tasks_dropped.append(info['tasks_dropped'])
         self.tasks_arrived.append(info['tasks_arrived'])
         
     def store_episode(self,epsilon,actions):
-        episode_delay_rewards = np.vstack(self.delay_rewards)
-        episode_delay_rewards=  np.sum(episode_delay_rewards,axis=0)
-        self.metrics['delay_rewards_history'].append(episode_delay_rewards)
+        episode_delay_without_drop_rewards = np.vstack(self.delay_without_drop_rewards)
+        episode_delay_without_drop_rewards=  np.sum(episode_delay_without_drop_rewards,axis=0)
+        self.metrics['delay_without_drop_rewards_history'].append(episode_delay_without_drop_rewards)
         
         
         episode_energy_rewards = np.vstack(self.energy_rewards)
@@ -161,7 +161,7 @@ class BookKeeper:
         with open(self.metrics_folder, 'wb') as f:
             pickle.dump(self.metrics, f)
         
-        self.delay_rewards = []
+        self.delay_without_drop_rewards = []
         self.energy_rewards =[]
         self.rewards  = []
         self.tasks_arrived =[]
