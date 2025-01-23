@@ -3,6 +3,42 @@ import torch
 import numpy as np
 import json
 class ChampionshipManager():
+    class ChampionshipManager:
+        """
+        The ChampionshipManager class manages the process of comparing and identifying 
+        best-performing Deep Reinforcement Learning (DRL) agents by grouping identical 
+        neural networks and tracking their performance across specified time windows.
+        It provides methods to:
+        - Initialize the championship process for DRL-based decision-making scenarios.
+        - Organize agents into groups of identical networks.
+        - Compare and record agent performance over time, saving the best-performing agents.
+        - Load previously saved model weights from stored championship results.
+        Methods:
+            __init__(descision_maker, agents, windows, run_folder, championship_start, device):
+                Initializes the ChampionshipManager by setting up necessary folder structures,
+                determining identical network groups among agents, and preparing counters for 
+                tracking performance epochs.
+            find_groups(networks):
+                Identifies which neural network models among the provided list are identical.
+                This method groups together indexes that share the same network architecture 
+                and parameter dimensions.
+            _are_networks_identical(net1, net2):
+                Performs a detailed comparison of two neural networks, ensuring they have 
+                identical layer structures and matching parameter dimensions. Returns a 
+                boolean indicating whether the two networks are identical.
+            step(rewards, agents):
+                Updates the championship process after each training epoch by:
+                1. Recording the count of epochs completed.
+                2. Checking if enough epochs have passed to start comparisons.
+                3. Averaging the recent rewards for each group of agents over specified 
+                   time windows.
+                4. Recording and saving the best performance observed in each agent group, 
+                   including saving model weights if a new high score is found.
+            load_weights(folder, agents):
+                Loads the best agent model weights from a specified folder, applying 
+                previously saved parameters to each agent if they are part of a known 
+                identical group.
+        """
     def __init__(self,descision_maker, agents,windows,run_folder,championship_start,device):
         self.descision_maker= descision_maker
         if descision_maker =='drl':

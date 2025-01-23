@@ -8,6 +8,132 @@ import torch
 import math
 
 class Environment():
+    """
+    A class representing the task offloading environment for distributed computing systems.
+    This environment simulates a distributed computing system where multiple servers can process tasks
+    locally, offload them to other servers horizontally, or send them to a cloud server. The environment
+    handles task generation, server management, and resource allocation.
+    Parameters
+    ----------
+    static_frequency : int
+        Frequency of resetting random seeds for reproducibility
+    number_of_servers : int 
+        Number of edge servers in the system
+    private_cpu_capacities : list
+        CPU capacities for private queues of each server
+    public_cpu_capacities : list 
+        CPU capacities for public queues of each server
+    connection_matrix : 2D array
+        Matrix defining connectivity between servers (1 if connected, 0 if not)
+    cloud_computational_capacity : float
+        Computational capacity of the cloud server
+    episode_time : int
+        Duration of each episode
+    task_arrive_probabilities : list
+        Probability of task arrival for each server
+    task_size_mins : list
+        Minimum task sizes for each server
+    task_size_maxs : list
+        Maximum task sizes for each server 
+    task_size_distributions : list
+        Probability distributions for task sizes
+    timeout_delay_mins : list
+        Minimum timeout delays for each server
+    timeout_delay_maxs : list
+        Maximum timeout delays for each server
+    timeout_delay_distributions : list
+        Probability distributions for timeout delays
+    priotiry_mins : list
+        Minimum priority values for tasks
+    priotiry_maxs : list
+        Maximum priority values for tasks
+    priotiry_distributions : list
+        Probability distributions for task priorities
+    computational_density_mins : list
+        Minimum computational density for tasks
+    computational_density_maxs : list
+        Maximum computational density for tasks
+    computational_density_distributions : list
+        Probability distributions for computational densities
+    drop_penalty_mins : list
+        Minimum penalties for dropping tasks
+    drop_penalty_maxs : list
+        Maximum penalties for dropping tasks
+    drop_penalty_distributions : list
+        Probability distributions for drop penalties
+    private_queue_waiting_time_consumptions : list
+        Energy consumption rates for waiting in private queues
+    private_queue_step_consumptions : list
+        Energy consumption per step in private queues
+    public_queue_waiting_time_consumptions : list
+        Energy consumption rates for waiting in public queues
+    public_queue_step_consumptions : list
+        Energy consumption per step in public queues
+    offloading_queue_waiting_time_consumptions : list
+        Energy consumption rates for waiting in offloading queues
+    offloading_queue_step_consumptions : list
+        Energy consumption per step in offloading queues
+    cloud_waiting_time_consumption : float
+        Energy consumption rate for waiting in cloud queue
+    cloud_step_consumption : float
+        Energy consumption per step in cloud
+    delay_to_energy_ratio : float
+        Weight ratio between delay and energy in reward calculation
+    number_of_clouds : int, optional
+        Number of cloud servers (default is 1)
+    scale_iterations : int, optional
+        Number of iterations for calculating reward scaling factors (default is 100)
+    Attributes
+    ----------
+    number_of_servers : int
+        Number of edge servers in the system
+    number_of_clouds : int
+        Number of cloud servers
+    current_time : int
+        Current timestep in the episode
+    episode_time_end : int
+        End time of the episode
+    connection_matrix : 2D array
+        Connectivity matrix between servers
+    task_generators : list
+        List of TaskGenerator objects for each server
+    servers : list
+        List of Server objects
+    matchmakers : list
+        List of Matchmaker objects for task allocation
+    cloud : Cloud
+        Cloud server object
+    number_of_task_features : int
+        Number of features describing each task
+    number_of_server_features : int
+        Number of features describing each server
+    number_of_features : int
+        Total number of features (task + server features)
+    static_frequency : int
+        Frequency of random seed resets
+    max_waiting_time : float
+        Maximum allowed waiting time for tasks
+    timeout_penalty : float
+        Maximum penalty for task timeout
+    delay_to_energy_ratio : float
+        Weight between delay and energy in reward calculation
+    Methods
+    -------
+    reset()
+        Resets the environment to initial state
+    step(actions)
+        Executes one timestep in the environment given actions
+    pack_observation()
+        Creates observation vector for current state
+    get_server_dimensions(id)
+        Returns dimensions of observation/action spaces for a server
+    get_task_features()
+        Returns number of task features
+    get_episode_actions()
+        Returns statistics about actions taken in episode
+    get_foreign_cpus(id)
+        Returns available CPU capacities for offloading
+    """
     def __init__(self, 
                  static_frequency,
                  number_of_servers,
@@ -148,6 +274,33 @@ class Environment():
     def scale_waiting_times(self,waiting_times):
         return waiting_times/self.max_waiting_time
     def pack_observation(self):
+        """
+        Packs observation data from servers, tasks, and cloud into a structured format for the environment.
+        This function collects and processes various features from the environment components:
+        - Gathers task features and waiting times from each server
+        - Collects public queue lengths from servers and cloud
+        - Builds local observations by combining server observations with their public queue lengths
+        - Tracks active queues and their supporting server relationships
+        Returns:
+            tuple: Contains two elements:
+                - local_observations (list): List of numpy arrays where each array contains:
+                    * Scaled task features (if task exists, zeros if no task)
+                    * Scaled waiting times for the server
+                    * Public queue lengths for that server
+                - active_queues (list): List of numpy arrays containing active queue information
+                    for each server, including data from supporting servers and cloud
+        Structure Details:
+            - server_observations: Matrix of size (number_of_servers × number_of_features)
+            - public_queues_length: List of arrays tracking queue lengths for servers and clouds
+            - active_queues: List of arrays showing which queues are currently active for each server
+        Notes:
+            - Task features and waiting times are scaled before being packed
+            - Empty tasks are represented by zero vectors
+            - Cloud queues are processed separately and added to relevant servers' observations
+        Requires:
+            - self.tasks and self.servers to be properly initialized
+            - All component classes (Server, Cloud, Task) to implement proper get_features() methods
+        """
         server_observations = np.zeros((self.number_of_servers,self.number_of_features))
         public_queues_legth  = [np.array([]) for key in range(self.number_of_servers+self.number_of_clouds)]
         assert len(self.tasks) == self.number_of_servers
@@ -196,8 +349,44 @@ class Environment():
                 self.actions[server_id]['cloud'] +=1
             else:
                 self.actions[server_id]['horisontal'] +=1
+                
     def step(self,actions):
-
+        """
+        Execute a step in the task offloading environment simulation.
+        This method advances the simulation by one time step, processing task offloading decisions,
+        calculating rewards, and updating the system state.
+        Parameters
+        ----------
+        actions : list or numpy.ndarray
+            List of actions for each server, where len(actions) equals number_of_servers.
+            Each action determines how the server should handle its current task.
+        Returns
+        -------
+        tuple
+            Contains 4 elements:
+            - observations (dict): Current state of the environment after the step
+            - rewards (numpy.ndarray): Combined rewards (delay + energy) for each server
+            - done (bool): True if episode has ended (current_time >= episode_time_end)
+            - info (dict): Additional information containing, to be sent to the bookkeeper:
+                - delay_rewards: Raw delay penalties for each server
+                - delay_without_drop_rewards: Delay penalties excluding dropped tasks
+                - energy_rewards: Energy consumption penalties for each server
+                - rewards: Scaled and combined rewards
+                - tasks_arrived: Binary array indicating task arrival at each server
+                - tasks_dropped: Number of dropped tasks per server
+        Notes
+        -----
+        The step function performs the following operations:
+        1. Processes horizontally transmitted tasks between servers
+        2. Executes cloud server step
+        3. Processes each edge server's actions and calculates rewards
+        4. Handles task transmissions between servers
+        5. Generates new tasks
+        6. Updates environment state and scales rewards
+        The rewards are calculated as a weighted sum of delay and energy penalties,
+        controlled by delay_to_energy_ratio parameter. Both delay and energy rewards
+        are scaled using their respective scaling factors before combination.
+        """
 
         tasks_arrived = [0 if t is None else 1 for t in self.tasks]
         
@@ -312,3 +501,4 @@ class Environment():
             
         self.delay_scaling =  - np.mean(delay_rewards)
         self.energy_scaling =  - np.mean(energy_rewards)
+    

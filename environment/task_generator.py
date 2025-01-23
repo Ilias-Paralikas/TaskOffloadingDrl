@@ -4,6 +4,42 @@ import numpy as np
 
 
 class TaskGenerator():
+    """TaskGenerator is responsible for creating and managing computational tasks in a simulation environment.
+    This class generates tasks with various attributes such as size, timeout delay, priority,
+    computational density, and drop penalty, each following specified probability distributions.
+    Attributes:
+        id (int): Unique identifier for the task generator
+        episode_time (int): Total duration of the simulation episode
+        task_arrive_probability (float): Probability of task arrival at each time step (0 to 1)
+        size_distributor (Variabledistributor): Generates task sizes within [size_min, size_max]
+        timeout_distributor (Variabledistributor): Generates timeout delays within [timeout_delay_min, timeout_delay_max]
+        priotiry_distributor (Variabledistributor): Generates priority levels within [priotiry_min, priotiry_max]
+        computational_density_distributor (Variabledistributor): Generates computational density within [computational_density_min, computational_density_max]
+        drop_penalty_distributor (Variabledistributor): Generates drop penalties within [drop_penalty_min, drop_penalty_max]
+        current_time (int): Current time step in the simulation
+        size_max (float): Maximum possible task size
+        timeout_delay_max (float): Maximum possible timeout delay
+        priotiry_max (float): Maximum possible priority level
+        computational_density_max (float): Maximum possible computational density
+        drop_penalty_max (float): Maximum possible drop penalty
+    Methods:
+        reset(): Resets the simulation time to -1
+        step(): Advances simulation by one time step and potentially generates a new task
+        generate(): Creates a new task with randomly generated attributes
+        get_number_of_features(): Returns the number of features in generated tasks
+        get_maxs(): Returns array containing maximum possible task size
+    Example:
+        task_gen = TaskGenerator(
+            id=1,
+            episode_time=1000,
+            task_arrive_probability=0.3,
+            size_min=1,
+            size_max=10,
+            size_distribution='uniform',
+            ...
+        )
+        task = task_gen.step()
+    """
     def __init__(self,
                 id,
                 episode_time,

@@ -3,6 +3,43 @@ from .queues import ProcessingQueue,OffloadingQueue,PublicQueueManager
 
 
 class Server():
+    """
+    A Server class that manages task processing, offloading and public queues in a distributed computing environment.
+    This class represents a server node in a distributed system that can:
+    - Process tasks locally in a private queue
+    - Offload tasks to other connected servers
+    - Handle tasks received from other servers in public queues
+    - Track energy consumption and delays
+    Attributes:
+        id (int): Unique identifier for the server
+        private_queue_computational_capacity (float): Processing capacity of server's private queue
+        public_queues_computational_capacity (float): Processing capacity for handling tasks from other servers
+        private_queue_waiting_time_consumption (float): Energy consumed while tasks wait in private queue
+        private_queue_step_consumption (float): Energy consumed per processing step in private queue
+        processing_queue (ProcessingQueue): Queue for processing local tasks
+        offloading_servers (numpy.ndarray): Array of server IDs that this server can offload to
+        offloading_capacities (dict): Mapping of server IDs to their offloading capacities
+        offloading_queue_waiting_time_consumption (float): Energy consumed while tasks wait for offloading
+        offloading_queue_step_consumption (float): Energy consumed per step during offloading
+        offloading_queue (OffloadingQueue): Queue for tasks being offloaded to other servers
+        supporting_servers (numpy.ndarray): Array of server IDs that can offload to this server
+        public_queue_waiting_time_consumption (float): Energy consumed while tasks wait in public queues
+        public_queue_step_consumption (float): Energy consumed per step in public queues
+        public_queue_manager (PublicQueueManager): Manages queues for tasks received from other servers
+        current_time (int): Current time step in the simulation
+    Methods:
+        reset(): Resets the server state and all queues to initial conditions
+        get_waiting_times(): Returns waiting times for processing and offloading queues
+        add_offloaded_tasks(offloaded_tasks): Adds tasks received from other servers to public queues
+        step(action, local_task): Processes one time step of server operations
+        get_features(): Returns current state features of the server
+        get_number_of_features(): Returns the number of state features
+        get_number_of_actions(): Returns the number of possible actions
+        get_offliading_servers(): Returns list of servers this can offload to
+        get_active_queues(): Returns currently active public queues
+        get_supporting_servers(): Returns list of servers that can offload to this one
+    """
+ 
     def __init__(self, 
                  id :int, 
                  private_queue_computational_capacity :float,

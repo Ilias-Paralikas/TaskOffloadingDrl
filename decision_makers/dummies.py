@@ -39,6 +39,17 @@ class SingleAgent(DescisionMakerBase):
     
     
 class RoundRobin(DescisionMakerBase):
+    """
+    RoundRobin is a decision-making class that cycles through a fixed number of actions in a round-robin manner.
+    Attributes:
+        number_of_actions (int): The total number of possible actions.
+        last_action (int): The index of the last action taken.
+    Methods:
+        __init__(number_of_actions, *args, **kwargs):
+            Initializes the RoundRobin instance with the given number of actions.
+        choose_action(*args, **kwargs):
+            Selects the next action in a round-robin sequence and returns its index.
+    """
     def __init__(self, number_of_actions,*args, **kwargs):
         self.number_of_actions =number_of_actions
         self.last_action = 0

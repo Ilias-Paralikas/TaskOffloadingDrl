@@ -1,5 +1,5 @@
 from environment import Environment
-from decision_makers import Agent, AllHorizontal, AllLocal, AllVertical,Random,SingleAgent,RoundRobin,RuleBased
+from decision_makers import Agent, AllHorizontal, AllLocal, AllVertical,Random,SingleAgent,RoundRobin,RuleBased,EnergyEfficientRuleBased
 from bookkeeping import BookKeeper
 from championship import ChampionshipManager
 import numpy as np
@@ -8,6 +8,45 @@ import torch
 import os
 
 def main():
+    """
+    Main function for running a task offloading simulation using various decision-making agents.
+    This function sets up and runs a simulation environment for task offloading in a distributed computing system.
+    It handles the initialization of the environment, agents, and training/validation process.
+    The function performs the following key operations:
+    1. Sets up command line arguments for configuration
+    2. Initializes a BookKeeper for logging and managing hyperparameters
+    3. Creates the simulation Environment with specified parameters
+    4. Initializes decision-making agents (DRL agents or other strategies)
+    5. Runs the simulation for specified number of epochs
+    6. Handles training or validation based on arguments
+    7. Manages the championship system between different agents
+    8. Logs and plots performance metrics
+    Args:
+        Command line arguments:
+            --log_folder (str): Directory path for storing logs
+            --hyperparameters_file (str): Path to JSON file containing hyperparameters
+            --resume_run (str): Name of previous run to resume from
+            --average_window (int): Window size for calculating moving averages
+            --epochs (int): Number of epochs to run the simulation
+            --validate (bool): Whether to run in validation mode
+            --championship_window_folder (str): Folder containing championship window weights
+    Returns:
+        float: The average reward achieved in the final episode
+    Environment Variables:
+        Uses various hyperparameters defined in the hyperparameters file including:
+        - number_of_servers
+        - CPU capacities
+        - network configuration
+        - task characteristics
+        - energy consumption parameters
+        - agent-specific parameters (for DRL)
+    Notes:
+        - Supports multiple decision-making strategies including DRL, rule-based, and baseline approaches
+        - Implements a championship system for comparing different strategies
+        - Provides comprehensive logging and visualization of results
+        - Handles both training and validation modes
+        - Supports GPU acceleration when available
+    """
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     parser = argparse.ArgumentParser()
     parser.add_argument('--log_folder', type=str, default='log_folder', help='Path to the log folder')
@@ -74,6 +113,7 @@ def main():
         'random': Random,
         'round_robin':RoundRobin,
         'rule_based':RuleBased,
+        'ee_rule_based':EnergyEfficientRuleBased,
         "single":SingleAgent
     }
     chosen_descision_maker = decision_makers_choice[hyperparameters['decision_makers']]
@@ -122,6 +162,39 @@ def main():
                 'number_of_actions': number_of_actions,
                 'local_cpu': hyperparameters['private_cpu_capacities'][i],
                 'foreign_cpus':foreign_cpus
+            }
+            
+        if hyperparameters['decision_makers'] == 'ee_rule_based':
+            foreign_cpus = env.get_foreign_cpus(i)
+            
+            private_queue_waiting_time_consumptions = hyperparameters['private_queue_waiting_time_consumptions'][i]
+            private_queue_step_consumptions = hyperparameters['private_queue_step_consumptions'][i]
+            
+            
+            public_queue_waiting_time_consumptions = hyperparameters['public_queue_waiting_time_consumptions'][i]
+            public_queue_step_consumptions = hyperparameters['public_queue_step_consumptions'][i]
+            
+            offloading_queue_waiting_time_consumptions = hyperparameters['offloading_queue_waiting_time_consumptions'][i]
+            offloading_queue_step_consumptions = hyperparameters['offloading_queue_step_consumptions'][i]
+            
+            cloud_waiting_time_consumption = hyperparameters['cloud_waiting_time_consumption']
+            cloud_step_consumption = hyperparameters['cloud_step_consumption']
+            
+            
+            decision_maker_params = {
+                'number_of_actions': number_of_actions,
+                'local_cpu': hyperparameters['private_cpu_capacities'][i],
+                'foreign_cpus':foreign_cpus,
+                'offloading_capacities':hyperparameters['connection_matrix'][0],
+                'private_queue_waiting_time_consumptions':private_queue_waiting_time_consumptions,
+                'private_queue_step_consumptions':private_queue_step_consumptions,
+                'public_queue_waiting_time_consumptions':public_queue_waiting_time_consumptions,
+                'public_queue_step_consumptions':public_queue_step_consumptions,
+                'offloading_queue_waiting_time_consumptions':offloading_queue_waiting_time_consumptions,
+                'offloading_queue_step_consumptions':offloading_queue_step_consumptions,
+                'cloud_waiting_time_consumption':cloud_waiting_time_consumption,
+                'cloud_step_consumption':cloud_step_consumption,
+                'delay_to_energy_ratio':hyperparameters['delay_to_energy_ratio']
             }
         
     

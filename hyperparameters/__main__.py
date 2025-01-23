@@ -20,122 +20,172 @@ def fill_array(string, length, default_value,dtype):
         return values
 
 def main():
-        parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
-        parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Path to the hyperparameters file')
         
-        parser.add_argument('--number_of_servers', type=int, default=20, help='Number of servers in the system')
+        '''
+        
+        This is a description of the command line argument pattern used in this script.
+        When the script is run, it processes command line arguments to generate a hyperparameters JSON file.
+        The arguments follow a pattern where there are both default and specific values for many parameters,
+        allowing for flexible configuration of the network servers.
+        
+        Notes 1:
+        
+        In this code, many parameters have both a "default" version 
+        and a specific version (without "default" in the name) to provide flexibility in configuration. 
 
-        parser.add_argument('--default_private_cpu_capacity', type=float, default=5, help='Number of servers in the system')
-        parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Number of servers in the system')
+        Take these two parameters as an example:
+                parser.add_argument('--default_private_cpu_capacity', type=float, default=5)
+                parser.add_argument('--private_cpu_capacities', type=str, default=None)
+        This pattern exists because:
+
+        Default Value: The default_private_cpu_capacity (=5) applies to all servers if no specific values are provided
+        Per-Server Configuration: private_cpu_capacities allows setting different values for each 
+        server using a comma-separated string (e.g., "3,4,5,6")
         
-        parser.add_argument('--default_public_cpu_capacity', type=float, default=5, help='Number of servers in the system')
-        parser.add_argument('--public_cpu_capacities', type=str, default=None, help='Number of servers in the system')
+        If you don't specify private_cpu_capacities, all servers get the default value (5)
+        If you specify private_cpu_capacities="3,4,5":
+        First 3 servers get values 3, 4, and 5 respectively
+        Any remaining servers get the default value (5)
+        This design allows both:
+        Simple configuration (just set the default)
+        Fine-grained control (specify individual values per server)
         
-        parser.add_argument('--episode_time', type=int, default=100, help='Number of servers in the system')
-        parser.add_argument('--time_step', type=int, default=0.1, help='Number of servers in the system')
         
-        parser.add_argument('--static_frequency', type=int, default=0, help='Number of servers in the system')
         
-        parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Number of servers in the system')
+        Notes 2:
+        
+        Some parameters have min, max, and distribution settings because they represent randomly 
+        generated values that need to be sampled according to specific probability distributions. Here's why:
+
+
+        Parameters like task_size, timeout_delay, priority need to vary randomly during simulation
+        Each task gets random values within the specified ranges
+
+        min: Lower bound of the random value
+        max: Upper bound of the random value
+        distribution: How to sample between min and max (e.g., 'uniform', 'constant')
+        Here's an example of how these parameters are defined in the script:
+                # Task size configuration
+                parser.add_argument('--default_task_size_mins', type=int, default=2)
+                parser.add_argument('--task_size_maxs', type=str, default=None)
+                parser.add_argument('--task_size_distributions', type=str, default='uniform')
+        Common Distributions:
+        uniform: Random values evenly distributed between min and max
+        constant: Always uses the same value (min=max)
+        This allows simulating realistic scenarios where task properties vary randomly within configured bounds.
+        '''
+        
+        parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
+        parser.add_argument('--hyperparameters_file', type=str, default='hyperparameters/hyperparameters.json', help='Output path for the generated hyperparameters JSON file')
+        
+        parser.add_argument('--number_of_servers', type=int, default=20, help='Total number of edge servers in the network')
+
+        parser.add_argument('--default_private_cpu_capacity', type=float, default=5, help='Default CPU capacity for private processing')
+        parser.add_argument('--private_cpu_capacities', type=str, default=None, help='Comma-separated list of CPU capacities for private processing per server')
+        
+        parser.add_argument('--default_public_cpu_capacity', type=float, default=5, help='Default CPU capacity for public processing')
+        parser.add_argument('--public_cpu_capacities', type=str, default=None, help='Comma-separated list of CPU capacities for public processing per server')
+        
+        parser.add_argument('--episode_time', type=int, default=100, help='Duration of each training episode')
+        parser.add_argument('--time_step', type=int, default=0.1, help='Time step for simulation discretization')
+        
+        parser.add_argument('--static_frequency', type=int, default=0, help='Frequency of static decision making (0 for dynamic)')
+        
+        parser.add_argument('--cloud_computational_capacity', type=float, default=30, help='Computational capacity of the cloud server')
         
    
-        parser.add_argument('--default_private_queue_waiting_time_consumptions', type=float, default=0.1, help='Number of servers in the system')
-        parser.add_argument('--private_queue_waiting_time_consumptions', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_private_queue_waiting_time_consumptions', type=float, default=0.1, help='Default energy consumption rate while waiting in private queue')
+        parser.add_argument('--private_queue_waiting_time_consumptions', type=str, default=None, help='Comma-separated list of energy consumption rates while waiting in private queue per server')
 
-        parser.add_argument('--default_private_queue_step_consumptions', type=float, default=1, help='Number of servers in the system')
-        parser.add_argument('--private_queue_step_consumptions', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_private_queue_step_consumptions', type=float, default=1, help='Default energy consumption per step in private queue')
+        parser.add_argument('--private_queue_step_consumptions', type=str, default=None, help='Comma-separated list of energy consumption per step in private queue per server')
         
-        parser.add_argument('--default_public_queue_waiting_time_consumptions', type=float, default=0.2, help='Number of servers in the system')
-        parser.add_argument('--public_queue_waiting_time_consumptions', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_public_queue_waiting_time_consumptions', type=float, default=0.2, help='Default energy consumption rate while waiting in public queue')
+        parser.add_argument('--public_queue_waiting_time_consumptions', type=str, default=None, help='Comma-separated list of energy consumption rates while waiting in public queue per server')
         
-        parser.add_argument('--default_public_queue_step_consumptions', type=float, default=2, help='Number of servers in the system')
-        parser.add_argument('--public_queue_step_consumptions', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_public_queue_step_consumptions', type=float, default=2, help='Default energy consumption per step in public queue')
+        parser.add_argument('--public_queue_step_consumptions', type=str, default=None, help='Comma-separated list of energy consumption per step in public queue per server')
         
-        parser.add_argument('--default_offloading_queue_waiting_time_consumptions', type=float, default=0.3, help='Number of servers in the system')
-        parser.add_argument('--offloading_queue_waiting_time_consumptions', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_offloading_queue_waiting_time_consumptions', type=float, default=0.3, help='Default energy consumption rate while waiting in offloading queue')
+        parser.add_argument('--offloading_queue_waiting_time_consumptions', type=str, default=None, help='Comma-separated list of energy consumption rates while waiting in offloading queue per server')
         
-        parser.add_argument('--default_offloading_queue_step_consumptions', type=float, default=3, help='Number of servers in the system')
-        parser.add_argument('--offloading_queue_step_consumptions', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_offloading_queue_step_consumptions', type=float, default=3, help='Default energy consumption per step in offloading queue')
+        parser.add_argument('--offloading_queue_step_consumptions', type=str, default=None, help='Comma-separated list of energy consumption per step in offloading queue per server')
         
-        parser.add_argument('--cloud_waiting_time_consumption', type=float, default=0.4, help='Number of servers in the system')
-        parser.add_argument('--cloud_step_consumption', type=float, default=4, help='Number of servers in the system')
+        parser.add_argument('--cloud_waiting_time_consumption', type=float, default=0.4, help='Energy consumption rate while waiting in cloud queue')
+        parser.add_argument('--cloud_step_consumption', type=float, default=4, help='Energy consumption per step in cloud queue')
         
-        parser.add_argument('--delay_to_energy_ratio', type=float, default=0.5, help='Number of servers in the system')
+        parser.add_argument('--delay_to_energy_ratio', type=float, default=0.5, help='Weight ratio between delay and energy in the cost function')
        
-        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.5, help='Number of servers in the system')
-        parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Number of servers in the system')
+        parser.add_argument('--default_task_arrive_probabilities', type=float, default=0.9, help='Default probability of task arrival per time step')
+        parser.add_argument('--task_arrive_probabilities', type=str, default=None, help='Comma-separated list of task arrival probabilities per server')
         
-        parser.add_argument('--default_task_size_mins', type=int, default=2, help='Number of servers in the system')
-        parser.add_argument('--task_size_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_task_size_maxs', type=int, default=5, help='Number of servers in the system')
-        parser.add_argument('--task_size_maxs', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--task_size_distributions', type=str, default='uniform', help='Number of servers in the system')
+        parser.add_argument('--default_task_size_mins', type=int, default=2, help='Default minimum task size')
+        parser.add_argument('--task_size_mins', type=str, default=None, help='Comma-separated list of minimum task sizes per server')
+        parser.add_argument('--default_task_size_maxs', type=int, default=5, help='Default maximum task size')
+        parser.add_argument('--task_size_maxs', type=str, default=None, help='Comma-separated list of maximum task sizes per server')
+        parser.add_argument('--task_size_distributions', type=str, default='uniform', help='Distribution type for task sizes (uniform, constant, etc)')
         
-        parser.add_argument('--default_timeout_delay_mins', type=int, default=10, help='Number of servers in the system')
-        parser.add_argument('--timeout_delay_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_timeout_delay_maxs', type=int, default=10, help='Number of servers in the system')
-        parser.add_argument('--timeout_delay_maxs', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--timeout_delay_distributions', type=str, default='constant', help='Number of servers in the system')
+        parser.add_argument('--default_timeout_delay_mins', type=int, default=10, help='Default minimum timeout delay')
+        parser.add_argument('--timeout_delay_mins', type=str, default=None, help='Comma-separated list of minimum timeout delays per server')
+        parser.add_argument('--default_timeout_delay_maxs', type=int, default=10, help='Default maximum timeout delay')
+        parser.add_argument('--timeout_delay_maxs', type=str, default=None, help='Comma-separated list of maximum timeout delays per server')
+        parser.add_argument('--timeout_delay_distributions', type=str, default='constant', help='Distribution type for timeout delays')
         
-        parser.add_argument('--default_priotiry_mins', type=int, default=1, help='Number of servers in the system')
-        parser.add_argument('--priotiry_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_priotiry_maxs', type=int, default=1, help='Number of servers in the system')
-        parser.add_argument('--priotiry_maxs', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--priotiry_distributions', type=str, default='constant', help='Number of servers in the system')
+        parser.add_argument('--default_priotiry_mins', type=int, default=1, help='Default minimum task priority')
+        parser.add_argument('--priotiry_mins', type=str, default=None, help='Comma-separated list of minimum task priorities per server')
+        parser.add_argument('--default_priotiry_maxs', type=int, default=1, help='Default maximum task priority')
+        parser.add_argument('--priotiry_maxs', type=str, default=None, help='Comma-separated list of maximum task priorities per server')
+        parser.add_argument('--priotiry_distributions', type=str, default='constant', help='Distribution type for task priorities')
         
-        parser.add_argument('--default_computational_density_mins', type=int, default=0.297, help='Number of servers in the system')
-        parser.add_argument('--computational_density_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_computational_density_maxs', type=int, default=0.297, help='Number of servers in the system')
-        parser.add_argument('--computational_density_maxs', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--computational_density_distributions', type=str, default='constant', help='Number of servers in the system')
+        parser.add_argument('--default_computational_density_mins', type=int, default=0.297, help='Default minimum computational density')
+        parser.add_argument('--computational_density_mins', type=str, default=None, help='Comma-separated list of minimum computational densities per server')
+        parser.add_argument('--default_computational_density_maxs', type=int, default=0.297, help='Default maximum computational density')
+        parser.add_argument('--computational_density_maxs', type=str, default=None, help='Comma-separated list of maximum computational densities per server')
+        parser.add_argument('--computational_density_distributions', type=str, default='constant', help='Distribution type for computational densities')
         
-        parser.add_argument('--default_drop_penalty_mins', type=int, default=40, help='Number of servers in the system')
-        parser.add_argument('--drop_penalty_mins', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--default_drop_penalty_maxs', type=int, default=40, help='Number of servers in the system')
-        parser.add_argument('--drop_penalty_maxs', type=str, default=None, help='Number of servers in the system')
-        parser.add_argument('--drop_penalty_distributions', type=str, default='constant', help='Number of servers in the system')
+        parser.add_argument('--default_drop_penalty_mins', type=int, default=40, help='Default minimum penalty for dropping tasks')
+        parser.add_argument('--drop_penalty_mins', type=str, default=None, help='Comma-separated list of minimum drop penalties per server')
+        parser.add_argument('--default_drop_penalty_maxs', type=int, default=40, help='Default maximum penalty for dropping tasks')
+        parser.add_argument('--drop_penalty_maxs', type=str, default=None, help='Comma-separated list of maximum drop penalties per server')
+        parser.add_argument('--drop_penalty_distributions', type=str, default='constant', help='Distribution type for drop penalties')
+         
+        parser.add_argument('--horizontal_capacities_min', type=float, default=10, help='Minimum capacity for horizontal connections between servers')
+        parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Maximum capacity for horizontal connections between servers')
+        parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Distribution type for horizontal connection capacities')
         
-        parser.add_argument('--horizontal_capacities_min', type=float, default=10, help='Number of servers in the system')
-        parser.add_argument('--horizontal_capacities_max', type=float, default=10, help='Number of servers in the system')
-        parser.add_argument('--horizontal_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
+        parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Minimum capacity for cloud connections')
+        parser.add_argument('--cloud_capacities_max', type=float, default=30, help='Maximum capacity for cloud connections')
+        parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Distribution type for cloud connection capacities')
         
-        parser.add_argument('--cloud_capacities_min', type=float, default=20, help='Number of servers in the system')
-        parser.add_argument('--cloud_capacities_max', type=float, default=30, help='Number of servers in the system')
-        parser.add_argument('--cloud_capacities_distribution', type=str, default='constant', help='Number of servers in the system')
+        parser.add_argument('--skip_connections', type=int, default=5, help='Number of skip connections in the network topology')
         
+        parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Type of topology generator (skip_connections or fully_connected)')
+        parser.add_argument('--symetric', type=bool, default=False, help='Whether the network topology should be symmetric')
         
-     
-        parser.add_argument('--skip_connections', type=int, default=5, help='Number of servers in the system')
+        parser.add_argument('--decision_makers', type=str, default='rule_based', help='Type of decision making algorithm')
+        parser.add_argument('--hidden_layers', type=str, default='1024,1024,1024', help='Comma-separated list of hidden layer sizes for neural network')
+        parser.add_argument('--lstm_layers', type=int, default=20, help='Number of LSTM layers')
+        parser.add_argument('--lstm_time_step', type=int, default=10, help='Time steps for LSTM memory')
+        parser.add_argument('--dropout_rate', type=float, default=0.5, help='Dropout rate for neural network')
+        parser.add_argument('--dueling', type=bool, default=True, help='Whether to use dueling architecture in DQN')
+        parser.add_argument('--epsilon_decrement', type=float, default=100, help='Decrement rate for epsilon in epsilon-greedy exploration')
+        parser.add_argument('--epsilon_end', type=float, default=0.01, help='Final value for epsilon in epsilon-greedy exploration')
+        parser.add_argument('--gamma', type=float, default=0.99, help='Discount factor for future rewards')
+        parser.add_argument('--learning_rate', type=float, default=1e-6, help='Initial learning rate')
+        parser.add_argument('--learning_rate_end', type=float, default=1e-7, help='Final learning rate')
+        parser.add_argument('--scheduler_choice', type=str, default='constant', help='Learning rate scheduler type')
+        parser.add_argument('--lr_scheduler_epochs', type=int, default=2000, help='Number of epochs for learning rate scheduling')
+        parser.add_argument('--optimizer', type=str, default='Adam', help='Optimization algorithm choice')
+        parser.add_argument('--loss_function', type=str, default='MSELoss', help='Loss function for training')
+        parser.add_argument('--save_model_frequency', type=int, default=10, help='Frequency of model checkpointing')
+        parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Percentage of weights to update in each training step')
+        parser.add_argument('--memory_size', type=int, default=10000, help='Size of replay memory buffer')
+        parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
+        parser.add_argument('--replace_target_iter', type=int, default=50, help='Frequency of target network updates')
         
-        parser.add_argument('--topology_generator', type=str, default='skip_connections', help='Number of servers in the system')
-        parser.add_argument('--symetric', type=bool, default=False, help='Number of servers in the system')
-        
-        
-        
-        
-        parser.add_argument('--decision_makers', type=str, default='drl', help='Number of servers in the system')
-        parser.add_argument('--hidden_layers', type=str, default='1024,1024,1024', help='comma-separated integers')
-        parser.add_argument('--lstm_layers', type=int, default=20, help='Integer')
-        parser.add_argument('--lstm_time_step', type=int, default=10, help='Integer')
-        parser.add_argument('--dropout_rate', type=float, default=0.5, help='Float')
-        parser.add_argument('--dueling', type=bool, default=True, help='Boolean')
-        parser.add_argument('--epsilon_decrement', type=float, default=100, help='Float')
-        parser.add_argument('--epsilon_end', type=float, default=0.01, help='Float')
-        parser.add_argument('--gamma', type=float, default=0.99, help='Float')
-        parser.add_argument('--learning_rate', type=float, default=1e-6, help='Float')
-        parser.add_argument('--learning_rate_end', type=float, default=1e-7, help='Float')
-        parser.add_argument('--scheduler_choice', type=str, default='constant', help='selected from https://pytorch.org/docs/stable/optim.html#algorithms, provided as a string')
-        parser.add_argument('--lr_scheduler_epochs', type=int, default=2000, help='Integer')
-        parser.add_argument('--optimizer', type=str, default='Adam', help='selected from https://pytorch.org/docs/stable/optim.html#algorithms, provided as a string')
-        parser.add_argument('--loss_function', type=str, default='MSELoss', help='selected from https://pytorch.org/docs/stable/nn.html#loss-functions, provided as a string')
-        parser.add_argument('--save_model_frequency', type=int, default=10, help='Path to the hyperparameters file')
-        parser.add_argument('--update_weight_percentage', type=float, default=1.0, help='Float')
-        parser.add_argument('--memory_size', type=int, default=10000, help='Integer')
-        parser.add_argument('--batch_size', type=int, default=32, help='Float')
-        parser.add_argument('--replace_target_iter', type=int, default=50, help='Float')
-        
-        parser.add_argument('--championship_windows', type=str, default='1,2,5,10,20,50,100,200,500', help='comma-separated integers')
-        parser.add_argument('--championship_start', type=int, default=1, help='Float')
+        parser.add_argument('--championship_windows', type=str, default='1,2,5,10,20,50,100,200,500', help='Comma-separated list of window sizes for championship evaluation')
+        parser.add_argument('--championship_start', type=int, default=1, help='Episode number to start championship evaluation')
         args = parser.parse_args()
         
         

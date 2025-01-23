@@ -23,12 +23,38 @@ def load_all_metrics(log_folder):
 
 
 def main():
+    """
+    A main function that creates and saves learning curve plots from training metrics.
+    This function processes command line arguments to create visualizations of learning curves
+    from training metrics stored in pickle files. It supports moving average smoothing,
+    custom markers, and automatically saves both plots and CSV data.
+    Args:
+        --plot_value (str): Name of the metric to plot from the metrics.pkl file (default: 'rewards_history')
+        --folder (str): Path to the folder containing the experiment logs (default: 'meta_plots/logs/opa')
+        --average_window (int): Size of the moving average window for smoothing (default: 200)
+        --clip (int): Maximum number of episodes to include in plot (default: 2000)
+        --marker_every (int): Interval for placing markers on the plot lines (default: 200)
+    Features:
+        - Loads metrics from pickle files in the specified runs folder
+        - Applies moving average smoothing to the data
+        - Supports custom label mapping through specifications.json
+        - Uses different markers for each plotted line
+        - Automatically handles multiple runs/experiments
+        - Saves both PNG plot and CSV data files
+    Files Created:
+        - {plot_value}.png: Plot visualization saved in the specified folder
+        - {plot_value}.csv: Raw data saved as CSV in the specified folder
+    Notes:
+        - Requires a specifications.json file in the folder for custom labels and y-axis naming
+        - Will use default values if specifications.json is not found
+        - Automatically truncates all data to the shortest run length for consistency
+    """
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
 
     parser.add_argument('--plot_value', type=str, default ='rewards_history',help='name of the metric you want to plot. Note it must match the name in the metrics.pkl file')
-    parser.add_argument('--folder', type=str, default='meta_plots/logs/factor_025/lr_gamma_08', help='path to the folder containing the logs')
+    parser.add_argument('--folder', type=str, default='meta_plots/logs/opa', help='path to the folder containing the logs')
     parser.add_argument('--average_window', type=int, default=200)
-    parser.add_argument('--clip', type=int, default=5000)
+    parser.add_argument('--clip', type=int, default=2000)
     parser.add_argument('--marker_every', type=int, default=200)
 
 
