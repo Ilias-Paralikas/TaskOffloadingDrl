@@ -35,3 +35,32 @@ This project implements a distributed task offloading system using deep reinforc
 - Extensive logging and visualization tools
 - Flexible configuration system
 - Multiple decision-making strategies
+
+
+
+## Example Usage
+
+### Basic Training Run
+
+1. Configure hyperparameters in a JSON file running
+```
+python hyperparameters
+
+```
+
+
+## Run training
+```
+python main.py \
+    --log_folder logs \
+    --hyperparameters_file config.json \
+    --epochs 1000 \
+    --average_window 500
+```
+## Resume Training
+```
+python main.py \
+    --log_folder logs \
+    --resume_run run_1 \
+    --epochs 500
+```
