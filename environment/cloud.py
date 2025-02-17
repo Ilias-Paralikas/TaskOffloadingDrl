@@ -3,6 +3,30 @@ from .queues import PublicQueueManager
  
  
 class Cloud:
+    """
+    A class representing a Cloud computing environment with multiple servers and task management capabilities.
+    This class simulates a cloud computing infrastructure that can process offloaded tasks
+    across multiple servers. It manages server allocation, task queuing, and execution through
+    a public queue manager.
+    Attributes:
+        number_of_servers (int): The total number of available servers in the cloud
+        computational_capacity (float): Processing power of each server
+        current_time (int): Current simulation time step
+        supporting_servers (numpy.ndarray): Array of available server IDs
+        public_queue_manager (PublicQueueManager): Manager handling task queues and execution
+    Args:
+        number_of_servers (int): Number of servers to initialize in the cloud
+        computational_capacity (float): Processing capacity per server
+        waiting_time_consumption (float): Energy consumption rate while tasks wait
+        step_consumption (float): Energy consumption rate during task execution
+    Methods:
+        reset(): Resets the cloud environment to initial state
+        step(): Advances simulation by one time step and returns rewards
+        add_offloaded_tasks(offloaded_tasks): Adds new tasks to the public queue
+        get_features(): Returns current queue lengths as state features
+        get_active_queues(): Returns currently active queue information
+        get_supporting_servers(): Returns array of available server IDs
+    """
     def __init__(self,
                  number_of_servers ,
                  computational_capacity,

@@ -38,6 +38,42 @@ def get_last_averages(log_folder, key, n):
     return all_averages
 
 def main():
+    """
+    Generate and save comparative plots for different task scenarios and metrics.
+    This function processes data from multiple experimental runs and creates a 3x3 grid of plots
+    comparing different metrics across various difficulty levels ('medium', 'hard', 'very_hard').
+    For each difficulty level, it plots three metrics:
+    - Task drop ratio
+    - Energy consumption
+    - Average delay for completed tasks
+    The function handles data processing, including:
+    - Calculating averages over specified windows
+    - Computing derived metrics (e.g., delay per completed task)
+    - Mapping labels and keys according to specifications
+    - Saving results to CSV files
+    Parameters
+    ----------
+    Command line arguments (via argparse):
+        folder : str
+            Path to the folder containing the logs (default: 'meta_plots/logs/comparissons')
+        average_window : int
+            Size of the window for calculating moving averages (default: 50)
+    Returns
+    -------
+    None
+        Saves:
+        - A combined plot figure ('combined_plots.png') with 9 subplots
+        - CSV files for each metric in their respective folders
+    Notes
+    -----
+    - Plot layout: 3x3 grid, with rows representing difficulty levels and columns representing metrics
+    - Each subplot includes:
+        - Custom markers for different data series
+        - Proper axis labels and legend
+        - Adjustable font sizes
+    - Data processing includes special handling for delay calculations, accounting for dropped tasks
+    - Supports custom key mapping and label mapping via specifications.json
+    """
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
     parser.add_argument('--folder', type=str, default='meta_plots/logs/comparissons', help='path to the folder containing the logs')
     parser.add_argument('--average_window', type=int, default=50)

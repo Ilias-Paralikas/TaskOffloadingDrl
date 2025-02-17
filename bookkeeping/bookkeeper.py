@@ -13,6 +13,110 @@ from lr_schedulers import *
 
 
 class BookKeeper:
+    """
+    The BookKeeper class is designed to manage and store all relevant data, metrics, 
+    and configurations required during a deep reinforcement learning (DRL) process for task offloading. 
+    It serves as a central utility for creating and maintaining logs, saving hyperparameters, 
+    tracking training progress, and generating various plots to visualize performance metrics and actions.
+    Key Responsibilities:
+    ---------------------
+    1. Folder and File Management:
+        - Creates and organizes folders to store logs, checkpoints, metrics, and configuration files.
+        - Manages run indices to ensure each new training session is stored in a uniquely numbered folder.
+        - Reads hyperparameters from a specified JSON file, saves them in the newly created run folder, 
+          and optionally loads from an existing run folder when resuming.
+    2. Tracking and Storage of Metrics:
+        - Keeps a running record of rewards, dropped tasks, arrived tasks, and other performance metrics during training.
+        - Maintains metrics history across episodes in a serialized (pickle) file, allowing for pause and resume functionality.
+        - Stores epsilon history to keep track of the exploration rate in the RL algorithm.
+    3. Scheduler Management:
+        - Initializes and stores the chosen learning rate scheduler, such as a linear or constant decay.
+        - Allows retrieval of the stored scheduler when resuming an experiment.
+    4. Plot Generation:
+        - Generates PNG plots for various metrics (e.g., rewards, delay without drop, energy rewards, 
+          task drop ratio) and computes moving averages for smoother trend visualization.
+        - Creates separate action plots illustrating how many times each agent chose a local, 
+          horizontal (typo-horisontal), or cloud approach.
+    5. Customization and Extensibility:
+        - Permits the addition of new metrics in the "metrics" dictionary, facilitating easy extension of 
+          logging without modifying the existing core code structure.
+        - Provides methods for retrieving important file paths (e.g., checkpoints, scheduler, run folder) 
+          to simplify organization in larger codebases.
+    Arguments in __init__:
+    ----------------------
+    • log_folder (str): 
+         The path where all logs and run-specific files will be saved. Defaults to 'log_folder'.
+    • hyperparameters_source_file (str or None): 
+         The JSON file containing hyperparameters. If 'resume_run' is not specified, 
+         the contents of this file are loaded and saved into the run folder.
+    • resume_run (str or None): 
+         The name of an existing log folder run to resume training from. 
+         If provided, metrics and hyperparameters are loaded from this folder.
+    • average_window (int): 
+         Determines how many of the most recent episodes to include in the moving average 
+         calculation for metrics.
+    Class Attributes:
+    ----------------
+    • plotable_metrics (list of str): 
+         A list defining which metric keys should be plotted.
+    • run_folder (str): 
+         The folder that corresponds to the current run; populated with folder hierarchy such as 
+         checkpoints, metrics, and hyperparameters.
+    • checkpoint_folder (str): 
+         Directory where checkpoint files (policy, NN weights) are stored.
+    • metrics_folder (str): 
+         File path pointing to the pickle file that stores the training metrics.
+    • scheduler_file (str): 
+         File path pointing to the pickle file that stores the learning rate scheduler.
+    • metrics (dict): 
+         A dictionary that accumulates and stores all the relevant performance data 
+         (e.g., rewards, task drop ratio, epsilon history, etc.).
+    • delay_without_drop_rewards, energy_rewards, rewards, tasks_dropped, tasks_arrived (lists): 
+         Lists that hold step-level metrics, which get aggregated and appended to "metrics" at the end of each episode.
+    Key Methods:
+    ------------
+    • get_epsilon():
+         Retrieves the latest epsilon (exploration rate) value from the metrics.
+    • get_checkpoint_folder():
+         Returns the path to the directory where checkpoint files are stored.
+    • get_scheduler_file():
+         Provides the path to the stored learning rate scheduler pickle file.
+    • get_hyperparameters():
+         Opens the hyperparameters file and returns its contents, including the current epsilon value.
+    • store_step(info):
+         Accumulates data from each step of an episode into local lists before final aggregation.
+    • store_episode(epsilon, actions):
+         Performs the episode-level aggregation of metrics. Summarizes step-level data into 
+         single-episode statistics (sums of rewards, tasks, etc.). Saves the updated metrics to a pickle file 
+         and resets step-level lists for the next episode.
+    • plot_and_save(key):
+         Generates a line plot of a chosen metric for each agent alongside their mean, 
+         then saves the figure in the run folder.
+    • moving_average(a):
+         Computes a moving average over the last 'average_window' episodes for a given 1D array.
+    • plot_and_save_moving_avg(key):
+         Similar to plot_and_save but uses the smoothed data derived from "moving_average" for each agent 
+         and a mean line for clarity.
+    • plot_actions():
+         Creates plots that represent how many times each agent chose local, horizontal, or cloud actions 
+         during the episodes. Also includes a total-aggregated plot.
+    • plot_metrics():
+         Iterates over all metrics in the "metrics" dictionary and generates both 
+         regular and moving average plots (if they are in "plotable_metrics"), 
+         then calls "plot_actions()" to plot action distributions.
+    • get_run_folder():
+         Retrieves the path of the currently active run folder.
+    • get_rewards_history():
+         Returns the entire history of rewards stored in "metrics['rewards_history']".
+    Usage Scenario:
+    ---------------
+    • Instantiate BookKeeper by specifying a log folder and hyperparameters source file 
+      or by referencing a previously created run folder to resume.
+    • After each environment step, call store_step() with the relevant reward and action data.
+    • After each episode, call store_episode() to finalize and log the metrics for that episode.
+    • Use plot_metrics() to visualize trends, monitor performance, and guide further 
+      training or hyperparameter tuning.
+    """
     def __init__(self, log_folder='log_folder', hyperparameters_source_file=None, resume_run=None, average_window=500):
         self.plotable_metrics = ['rewards_history', 'delay_without_drop_rewards_history', 'energy_rewards_history', 'task_drop_ratio_history']
         self.log_folder = log_folder

@@ -53,7 +53,6 @@ python hyperparameters
 ```
 python main.py \
     --log_folder logs \
-    --hyperparameters_file config.json \
     --epochs 1000 \
     --average_window 500
 ```
@@ -64,3 +63,8 @@ python main.py \
     --resume_run run_1 \
     --epochs 500
 ```
+
+# Different Versions
+
+In order to run the different versions, you just nee dto modify the different hyperparameters. for instance, if one needs to run different versions, such as the priority queues, one needs to modify the hyperparameters and give each server a priority.
+If one needs to remove the energy efficiency, in order to run version previous to deccoffe, just set delay_to_energy_ratio hyperparameter to 0

@@ -22,7 +22,6 @@ def fill_array(string, length, default_value,dtype):
 def main():
         
         '''
-        
         This is a description of the command line argument pattern used in this script.
         When the script is run, it processes command line arguments to generate a hyperparameters JSON file.
         The arguments follow a pattern where there are both default and specific values for many parameters,

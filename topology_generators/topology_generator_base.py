@@ -20,6 +20,28 @@ class TopologyGeneratorBase():
                 
 
 def plot_matrix(connection_matrix,path):
+    def plot_matrix(connection_matrix, path):
+        """
+        Plots and saves a heatmap visualization of a connection matrix.
+        This function creates a visual representation of a connection matrix using a heatmap,
+        where each cell's value is represented by both color intensity and numeric annotation.
+        Non-zero values are displayed as text within their respective cells.
+        Args:
+            connection_matrix (array-like): A 2D matrix/array representing connection values 
+                between nodes. Can be a list of lists or numpy array.
+            path (str): File path where the resulting plot should be saved.
+        Features:
+            - Automatically scales font size based on matrix dimensions
+            - Uses 'viridis' colormap for visualization
+            - Includes a colorbar for reference
+            - Only annotates non-zero values for clarity
+            - Places x-axis labels at the top of the plot
+        Returns:
+            None. The plot is saved to the specified path.
+        Example:
+            >>> matrix = [[0, 1, 2], [1, 0, 3], [2, 3, 0]]
+            >>> plot_matrix(matrix, "output_plot.png")
+        """
     connection_matrix = np.array(connection_matrix)
     fig, ax = plt.subplots()
     heatmap = ax.imshow(connection_matrix, cmap='viridis')

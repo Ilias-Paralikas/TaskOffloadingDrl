@@ -19,6 +19,34 @@ def load_all_metrics(log_folder):
 
 
 def main():
+    """
+    Analyzes and visualizes action distributions from multiple DRL training runs.
+    This function processes action history data from training logs, calculating average action distributions
+    across specified runs and creating a comparative bar plot. It handles multiple training configurations
+    and visualizes how often different actions (local, horizontal, cloud) were chosen.
+    Args:
+        Command line arguments:
+            --folder (str): Path to the folder containing the logs and specifications.
+                           Default: 'meta_plots/logs/set_2/action_comparison'
+            --average_window (int): Number of last episodes to consider for averaging.
+                                  Default: 500
+    The function:
+    1. Loads training specifications from a JSON file
+    2. Processes metrics from multiple training runs
+    3. Calculates average action distributions for the specified window
+    4. Creates a grouped bar plot comparing action distributions across different runs
+    5. Saves the resulting plot as 'actions_comparison.png'
+    The plot shows:
+    - X-axis: Different action types (local, horizontal, cloud)
+    - Y-axis: Average frequency of each action
+    - Multiple bars per action type representing different training configurations
+    - Custom legend based on specifications file mapping
+    Required files:
+    - specifications.json: Contains plot specifications and label mappings
+    - Training log files in the 'runs' subdirectory
+    Output:
+    - Generates a high-resolution (500 DPI) plot saved as 'actions_comparison.png'
+    """
     
     
     parser = argparse.ArgumentParser(description='Script Configuration via Command Line')
