@@ -66,5 +66,10 @@ python main.py \
 
 # Different Versions
 
-In order to run the different versions, you just nee dto modify the different hyperparameters. for instance, if one needs to run different versions, such as the priority queues, one needs to modify the hyperparameters and give each server a priority.
-If one needs to remove the energy efficiency, in order to run version previous to deccoffe, just set delay_to_energy_ratio hyperparameter to 0
+In order to run the different versions, you just need to modify the hyperparameters file,
+## Cooler 
+just run it with the ```delay_to_energy_ratio ```  hyperparameter set to 0. Meaning only delay will be taken into account in the reward.
+## Priority 
+In order to run pdppnet, with **priority**, one needs to change the priority distributions from the hyperparameters.
+## Deccoffe.
+Modify the  ```delay_to_energy_ratio ```   to be non-zero.
